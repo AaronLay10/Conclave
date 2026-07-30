@@ -27,8 +27,8 @@ export default function LoginPage() {
     <div className="login-page">
       <div className="card login-card">
         <div className="login-emblem"><Shield size={37} /></div>
-        <h1>RoK Events Command</h1>
-        <p className="muted">Authorized kingdom and alliance event leadership only.</p>
+        <h1>Conclave</h1>
+        <p className="muted">Where alliances plan as one.</p>
         <button className="button primary" style={{ width: "100%", marginTop: 12 }} onClick={signIn} disabled={!configured}>
           Continue with Discord
         </button>
