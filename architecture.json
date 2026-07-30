@@ -1,0 +1,19 @@
+{
+  "name": "RoK Events Command",
+  "scope": "events-only",
+  "frontend": "Next.js App Router on Vercel",
+  "backend": "Supabase PostgreSQL/Auth/RLS/Cron/Edge Functions",
+  "auth": "Discord OAuth",
+  "deployment_constraints": [
+    "Never use Ubuntu Production server"
+  ],
+  "pages": [
+    "/dashboard",
+    "/calendar",
+    "/events",
+    "/events/new",
+    "/templates",
+    "/announcements",
+    "/settings"
+  ]
+}
