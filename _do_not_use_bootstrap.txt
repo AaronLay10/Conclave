@@ -1,1 +1,0 @@
-Archive bootstrap is deprecated; direct source tree replacement is being applied.

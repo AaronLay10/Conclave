@@ -1,1 +1,0 @@
-The next commit replaces the bootstrap archive with the real application source tree.
