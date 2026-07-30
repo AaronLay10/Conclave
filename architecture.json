@@ -1,5 +1,6 @@
 {
-  "name": "RoK Events Command",
+  "name": "Conclave",
+  "tagline": "Where alliances plan as one.",
   "scope": "events-only",
   "frontend": "Next.js App Router on Vercel",
   "backend": "Supabase PostgreSQL/Auth/RLS/Cron/Edge Functions",
