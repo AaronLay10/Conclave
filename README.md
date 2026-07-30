@@ -1,6 +1,8 @@
-# RoK Events Command
+# Conclave
 
-A focused web command center for planning, approving, publishing, coordinating, and recording Rise of Kingdoms kingdom and alliance events.
+**Where alliances plan as one.**
+
+Conclave is a focused web command center for planning, approving, publishing, coordinating, and recording Rise of Kingdoms kingdom and alliance events.
 
 ## Delivered MVP
 
@@ -52,7 +54,7 @@ npm run dev
 
 Open `http://localhost:3000/dashboard`.
 
-Without Supabase values, the application runs in demo mode using Kingdom 4126 sample data.
+Without Supabase values, Conclave runs in demo mode using Kingdom 4126 sample data.
 
 ## Supabase setup
 
@@ -80,7 +82,7 @@ Without Supabase values, the application runs in demo mode using Kingdom 4126 sa
 
 ## Discord OAuth setup
 
-1. Create an application in the Discord Developer Portal.
+1. Create an application named **Conclave** in the Discord Developer Portal.
 2. In Discord OAuth2, add the callback URL shown by the Supabase Discord provider page.
 3. Enable Discord under **Supabase → Authentication → Providers**.
 4. Enter the Discord client ID and client secret.
@@ -154,4 +156,4 @@ Commit the generated lockfile after the first successful `npm install` so deploy
 
 ## MVP boundary
 
-This repository intentionally excludes recruitment, diplomacy, member statistics, kingdom laws, war maps, and broader AllianceOS functions. It is an events-only product that can later become an AllianceOS module without a rewrite.
+Conclave is intentionally events-only. Recruitment, diplomacy, member statistics, kingdom laws, war maps, and broader community-management functions are outside this MVP.
