@@ -14,11 +14,12 @@ export default async function CommandLayout({
     redirect("/login");
   }
 
+  const metadata = user?.user_metadata as Record<string, unknown> | undefined;
+  const metadataName = metadata?.full_name ?? metadata?.name;
   const userName =
-    user?.user_metadata?.full_name ??
-    user?.user_metadata?.name ??
-    user?.email?.split("@")[0] ??
-    "Event Director";
+    typeof metadataName === "string" && metadataName.trim().length > 0
+      ? metadataName
+      : user?.email?.split("@")[0] ?? "Event Director";
 
   return <AppShell userName={userName}>{children}</AppShell>;
 }
