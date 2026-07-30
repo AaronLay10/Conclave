@@ -2,20 +2,12 @@ name: Bootstrap repository source
 
 on:
   workflow_dispatch:
-  issues:
-    types: [opened]
-  push:
-    branches: [main]
-    paths:
-      - source.part.*
-      - .github/workflows/bootstrap.yml
 
 permissions:
   contents: write
 
 jobs:
   unpack:
-    if: github.event_name != 'issues' || github.event.issue.title == 'Bootstrap KingdomOS source'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -26,18 +18,61 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat source.part.* > /tmp/kingdomos-source.tar.gz.b64
-          base64 --decode /tmp/kingdomos-source.tar.gz.b64 > /tmp/kingdomos-source.tar.gz
-          tar -xzf /tmp/kingdomos-source.tar.gz -C .
 
-          # Keep the permanent CI workflow on Node.js 24-compatible action runtimes.
-          if [ -f .github/workflows/ci.yml ]; then
-            sed -i 's#actions/checkout@v4#actions/checkout@v6#g' .github/workflows/ci.yml
-            sed -i 's#actions/setup-node@v4#actions/setup-node@v6#g' .github/workflows/ci.yml
-          fi
+          archive=/tmp/kingdomos-source.tar.gz
+          : > "$archive"
 
-          rm source.part.*
-          rm .github/workflows/bootstrap.yml
+          for part in $(find . -maxdepth 1 -type f -name 'source.part.*' | sort -V); do
+            echo "Decoding $part"
+            base64 --decode "$part" >> "$archive"
+          done
+
+          gzip -t "$archive"
+          tar -xzf "$archive" -C .
+
+          mkdir -p .github/workflows
+          cat > .github/workflows/ci.yml <<'YAML'
+          name: CI
+
+          on:
+            push:
+              branches: [main]
+            pull_request:
+
+          permissions:
+            contents: read
+
+          jobs:
+            validate:
+              runs-on: ubuntu-latest
+              timeout-minutes: 15
+              steps:
+                - name: Checkout
+                  uses: actions/checkout@v6
+
+                - name: Set up Node.js
+                  uses: actions/setup-node@v6
+                  with:
+                    node-version: 22
+                    cache: npm
+
+                - name: Install dependencies
+                  run: npm install --no-audit --no-fund
+
+                - name: Typecheck
+                  run: npm run typecheck
+
+                - name: Lint
+                  run: npm run lint
+
+                - name: Build
+                  run: npm run build
+          YAML
+
+          rm -f source.part.*
+          rm -f tmp-noop*.txt
+          rm -f .github/workflows/bootstrap.yml
+          rm -rf scripts
 
       - name: Commit application source
         shell: bash
