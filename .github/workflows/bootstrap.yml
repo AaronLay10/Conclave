@@ -1,6 +1,9 @@
 name: Bootstrap repository source
 
 on:
+  workflow_dispatch:
+  issues:
+    types: [opened]
   push:
     branches: [main]
     paths:
@@ -12,6 +15,7 @@ permissions:
 
 jobs:
   unpack:
+    if: github.event_name != 'issues' || github.event.issue.title == 'Bootstrap KingdomOS source'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
