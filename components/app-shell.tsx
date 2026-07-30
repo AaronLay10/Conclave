@@ -37,8 +37,8 @@ export function AppShell({
         <div className="brand">
           <div className="brand-mark"><Shield size={24} /></div>
           <div>
-            <strong>RoK Events</strong>
-            <span>Kingdom Command</span>
+            <strong>Conclave</strong>
+            <span>Kingdom Events</span>
           </div>
         </div>
         <nav className="nav" aria-label="Primary navigation">
@@ -63,7 +63,7 @@ export function AppShell({
       <main className="main">
         <header className="topbar">
           <div>
-            <div className="topbar-title">Kingdom 4126 · Events Office</div>
+            <div className="topbar-title">Kingdom 4126 · Conclave</div>
           </div>
           <div className="row">
             <span className="badge leadership_scheduled">UTC</span>
