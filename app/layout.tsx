@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "RoK Events Command",
-  description: "Kingdom and alliance event planning for Rise of Kingdoms",
-  applicationName: "RoK Events Command"
+  title: "Conclave",
+  description: "Kingdom event planning and coordination for Rise of Kingdoms",
+  applicationName: "Conclave"
 };
 
 export default function RootLayout({
