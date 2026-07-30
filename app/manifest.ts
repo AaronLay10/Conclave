@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "RoK Events Command",
-    short_name: "RoK Events",
-    description: "Kingdom event planning and communication command center",
+    name: "Conclave",
+    short_name: "Conclave",
+    description: "Kingdom event planning and coordination",
     start_url: "/dashboard",
     display: "standalone",
     background_color: "#0a101a",
