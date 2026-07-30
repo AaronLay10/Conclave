@@ -29,6 +29,13 @@ jobs:
           cat source.part.* > /tmp/kingdomos-source.tar.gz.b64
           base64 --decode /tmp/kingdomos-source.tar.gz.b64 > /tmp/kingdomos-source.tar.gz
           tar -xzf /tmp/kingdomos-source.tar.gz -C .
+
+          # Keep the permanent CI workflow on Node.js 24-compatible action runtimes.
+          if [ -f .github/workflows/ci.yml ]; then
+            sed -i 's#actions/checkout@v4#actions/checkout@v6#g' .github/workflows/ci.yml
+            sed -i 's#actions/setup-node@v4#actions/setup-node@v6#g' .github/workflows/ci.yml
+          fi
+
           rm source.part.*
           rm .github/workflows/bootstrap.yml
 
