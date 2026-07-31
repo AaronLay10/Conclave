@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BellRing, CalendarClock, Shield, UserRound } from "lucide-react";
+import { ArrowLeft, BellRing, CalendarClock, Pencil, Shield, UserRound } from "lucide-react";
 import { notFound } from "next/navigation";
 import { DeleteEventButton } from "@/components/delete-event-button";
 import { LocalDateTime } from "@/components/local-date-time";
@@ -28,6 +28,7 @@ export default async function EventDetailPage({
           </div>
         </div>
         <div className="actions">
+          <Link className="button" href={`/events/${event.id}/edit`}><Pencil size={16} /> Edit event</Link>
           <Link className="button" href={`/announcements?event=${event.id}`}><BellRing size={16} /> Generate announcement</Link>
           <DeleteEventButton eventId={event.id} eventName={event.name} />
         </div>
