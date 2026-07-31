@@ -12,10 +12,13 @@ export default function LoginPage() {
   async function signIn() {
     try {
       const supabase = createClient();
-      const redirectTo = `${window.location.origin}/auth/callback`;
+      const redirectTo = `${window.location.origin}/auth/complete`;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "discord",
-        options: { redirectTo }
+        options: {
+          redirectTo,
+          scopes: "identify email"
+        }
       });
       if (error) setError(error.message);
     } catch (err) {
