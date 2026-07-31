@@ -17,9 +17,10 @@ const eventSchema = z.object({
   category: z.string().min(2).max(80),
   scope: z.enum(["kingdom", "alliance"]),
   certainty: z.enum(["confirmed", "predicted", "leadership_scheduled", "tbd"]),
-  status: z.enum(["draft", "review", "approved", "published"]),
+  status: z.enum(["draft", "review", "approved", "published", "active", "completed", "archived"]),
   start_at: z.string().min(1),
   end_at: z.string().min(1),
+  location: z.string().max(200).optional(),
   description: z.string().optional(),
   preparation: z.string().optional(),
   rules: z.string().optional()
@@ -27,6 +28,11 @@ const eventSchema = z.object({
   message: "End time must be after start time.",
   path: ["end_at"]
 });
+
+function optionalText(value?: string) {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
+}
 
 export async function POST(request: Request) {
   if (!isSupabaseConfigured()) {
@@ -90,10 +96,18 @@ export async function POST(request: Request) {
   const { data: event, error } = await supabase
     .from("events")
     .insert({
-      ...values,
-      slug: `${slugify(values.name)}-${Date.now()}`,
+      name: values.name.trim(),
+      category: values.category.trim(),
+      scope: values.scope,
+      certainty: values.certainty,
+      status: values.status,
       start_at: utcIso(values.start_at),
       end_at: utcIso(values.end_at),
+      location: optionalText(values.location),
+      description: optionalText(values.description),
+      preparation: optionalText(values.preparation),
+      rules: optionalText(values.rules),
+      slug: `${slugify(values.name)}-${Date.now()}`,
       kingdom_id: membership.kingdom_id,
       alliance_id: values.scope === "alliance" ? membership.alliance_id : null,
       alliance_name: values.scope === "alliance" ? allianceName : null,
