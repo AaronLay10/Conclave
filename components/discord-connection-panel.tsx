@@ -13,6 +13,33 @@ type DiscordStatus = {
   detail?: string;
 };
 
+async function readFunctionError(error: unknown, fallback: string) {
+  if (error && typeof error === "object" && "context" in error) {
+    const context = (error as { context?: unknown }).context;
+
+    if (context instanceof Response) {
+      try {
+        const payload = await context.clone().json() as {
+          error?: string;
+          message?: string;
+          detail?: string;
+        };
+
+        return payload.error ?? payload.message ?? payload.detail ?? fallback;
+      } catch {
+        try {
+          const text = await context.clone().text();
+          if (text.trim()) return text;
+        } catch {
+          // Fall through to the normal Error message.
+        }
+      }
+    }
+  }
+
+  return error instanceof Error ? error.message : fallback;
+}
+
 export function DiscordConnectionPanel() {
   const [status, setStatus] = useState<DiscordStatus | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,11 +63,10 @@ export function DiscordConnectionPanel() {
       setStatus(data as DiscordStatus);
     } catch (err) {
       setStatus(null);
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to read the Discord connection status."
-      );
+      setError(await readFunctionError(
+        err,
+        "Unable to read the Discord connection status."
+      ));
     } finally {
       setLoading(false);
     }
@@ -68,7 +94,7 @@ export function DiscordConnectionPanel() {
       setMessage("Test message published to Discord.");
       await loadStatus();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Discord test failed.");
+      setError(await readFunctionError(err, "Discord test failed."));
     } finally {
       setTesting(false);
     }
@@ -121,7 +147,7 @@ export function DiscordConnectionPanel() {
         {!status?.configured && !loading && (
           <div className="copy-box" style={{ marginBottom: 18 }}>
             Add <strong>DISCORD_WEBHOOK_URL</strong> under Supabase → Edge Functions → Secrets,
-            then deploy the <strong>publish-discord</strong> function.
+            then refresh this panel.
           </div>
         )}
 
