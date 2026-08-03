@@ -256,6 +256,19 @@ textarea { min-height: 110px; resize: vertical; }
 .import-replace small { margin-top: 3px; font-weight: 400; }
 .import-preview { overflow: hidden; }
 .daily-mail-preview { min-height: 390px; }
+.mail-event-editor {
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(14,23,35,.55);
+}
+.mail-event-editor.selected { border-color: rgba(209,165,68,.55); }
+.mail-event-select { display: flex; align-items: flex-start; gap: 10px; }
+.mail-event-select input { width: auto; margin-top: 3px; }
+.mail-event-select span, .mail-event-select strong, .mail-event-select small { display: block; }
+.mail-event-select small { margin-top: 3px; font-weight: 400; }
+.mail-event-editor .field { margin-top: 12px; }
+.mail-event-editor textarea { min-height: 88px; }
 
 .calendar-shell { overflow: hidden; }
 .calendar-toolbar {

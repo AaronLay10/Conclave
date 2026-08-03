@@ -5,10 +5,10 @@ import { useMemo, useState } from "react";
 import type { RokEvent } from "@/lib/types";
 
 const DAY_MS = 86_400_000;
-const GOLD = "#F0C96A";
-const GREEN = "#63D995";
-const BLUE = "#6FC5F2";
-const ORANGE = "#FFB45E";
+const GOLD = "#855400";
+const GREEN = "#176B3A";
+const BLUE = "#1E5F8A";
+const ORANGE = "#963F00";
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -26,7 +26,7 @@ function safeMailText(value: string) {
   return value.replace(/[<>]/g, "").trim();
 }
 
-function heading(value: string, color: string, size = 20) {
+function heading(value: string, color: string, size = 27) {
   return `<size=${size}><b><color=${color}>${safeMailText(value)}</color></b></size>`;
 }
 
@@ -41,94 +41,90 @@ function daysLeftLabel(event: RokEvent, reportStart: Date) {
     : `${fullDaysAfterToday} DAYS LEFT`;
 }
 
-function firstSentence(value: string, maxLength: number) {
-  const sentence = value.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() ?? value.trim();
-  if (sentence.length <= maxLength) return sentence;
-  return `${sentence.slice(0, maxLength - 1).trimEnd()}…`;
-}
-
-function actionSummary(event: RokEvent, maxLength: number) {
-  if (event.preparation) return firstSentence(event.preparation, maxLength);
-  if (event.rules) return firstSentence(event.rules, maxLength);
+function actionSummary(event: RokEvent) {
+  if (event.preparation) return event.preparation.trim();
+  if (event.rules) return event.rules.trim();
   if (event.scope === "alliance") {
-    return firstSentence("Watch alliance announcements for the confirmed time and instructions.", maxLength);
+    return "Await alliance leadership's confirmed time and instructions.";
   }
   if (event.certainty !== "confirmed") {
-    return firstSentence("Open the event page at reset and follow the listed objectives.", maxLength);
+    return "Open the event page at reset and follow the listed objectives.";
   }
-  if (event.description) return firstSentence(event.description, maxLength);
-  return firstSentence("Check Conclave and the in-game event page for instructions.", maxLength);
+  if (event.description) return event.description.trim();
+  return "Open the in-game event page and follow the listed instructions.";
+}
+
+function wrapMailText(value: string, width = 48) {
+  const words = safeMailText(value).split(/\s+/).filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (candidate.length <= width || current.length === 0) {
+      current = candidate;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+
+  if (current) lines.push(current);
+  return lines;
 }
 
 function isPublicWorkflow(event: RokEvent) {
   return ["review", "approved", "published", "active", "completed"].includes(event.status);
 }
 
-function composeMail({
+function activeEventsForDay({
   events,
   reportDate,
-  horizonDays,
-  includeTentative,
-  summaryLength,
-  upcomingLimit
+  includeTentative
 }: {
   events: RokEvent[];
   reportDate: string;
-  horizonDays: number;
   includeTentative: boolean;
-  summaryLength: number;
-  upcomingLimit: number;
 }) {
   const start = utcDay(reportDate);
   const end = new Date(start.getTime() + DAY_MS);
-  const horizon = new Date(start.getTime() + horizonDays * DAY_MS);
-  const eligible = events
+  return events
     .filter(isPublicWorkflow)
-    .filter((event) => includeTentative || event.certainty === "confirmed");
-  const active = eligible.filter((event) =>
-    new Date(event.start_at) < end && new Date(event.end_at) > start
-  );
-  const upcoming = eligible
-    .filter((event) => new Date(event.start_at) >= end && new Date(event.start_at) < horizon)
-    .slice(0, upcomingLimit);
-  const omittedUpcoming = eligible.filter((event) =>
-    new Date(event.start_at) >= end && new Date(event.start_at) < horizon
-  ).length - upcoming.length;
+    .filter((event) => includeTentative || event.certainty === "confirmed")
+    .filter((event) => new Date(event.start_at) < end && new Date(event.end_at) > start);
+}
+
+function composeMail({
+  activeEvents,
+  reportDate,
+  summaryOverrides
+}: {
+  activeEvents: RokEvent[];
+  reportDate: string;
+  summaryOverrides: Record<string, string>;
+}) {
+  const start = utcDay(reportDate);
 
   const lines = [
-    heading(`K4126 DAILY EVENT UPDATE — ${dateLabel(start)}`, GOLD, 24),
+    heading(`K4126 DAILY EVENT UPDATE — ${dateLabel(start)}`, GOLD, 34),
     `<color=${BLUE}>All times UTC • In-game changes take priority</color>`,
     ""
   ];
 
   lines.push(heading("ACTIVE EVENTS", GREEN));
-  if (active.length === 0) lines.push("No tracked events are active today.");
-  for (const event of active) {
+  if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
+  for (const event of activeEvents) {
     const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
     lines.push(
       `<b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color>`,
-      safeMailText(actionSummary(event, summaryLength))
+      ...wrapMailText(summaryOverrides[event.id] ?? actionSummary(event)),
+      ""
     );
   }
 
-  lines.push("", heading("COMING NEXT", BLUE));
-  if (upcoming.length === 0) lines.push(`No tracked starts in the next ${horizonDays - 1} days.`);
-
-  let previousLabel = "";
-  for (const event of upcoming) {
-    const label = dateLabel(new Date(event.start_at));
-    const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
-    if (label !== previousLabel) lines.push(`<color=${GOLD}><b>${label}</b></color>`);
-    lines.push(
-      `• <b>${safeMailText(event.name)}</b>${marker}: ${safeMailText(actionSummary(event, summaryLength))}`
-    );
-    previousLabel = label;
-  }
-  if (omittedUpcoming > 0) lines.push(`+ ${omittedUpcoming} more events in Conclave`);
-
-  const tentative = [...active, ...upcoming].filter((event) => event.certainty !== "confirmed");
+  const tentative = activeEvents.filter((event) => event.certainty !== "confirmed");
   if (tentative.length > 0) {
-    lines.push("", `<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
+    lines.push(`<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
   }
 
   return lines.join("\n");
@@ -136,27 +132,20 @@ function composeMail({
 
 export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
   const [reportDate, setReportDate] = useState(new Date().toISOString().slice(0, 10));
-  const [horizonDays, setHorizonDays] = useState(8);
   const [includeTentative, setIncludeTentative] = useState(true);
+  const [excludedIds, setExcludedIds] = useState<string[]>([]);
+  const [summaryOverrides, setSummaryOverrides] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
 
-  const mail = useMemo(() => {
-    const options = { events, reportDate, horizonDays, includeTentative };
-    let value = composeMail({ ...options, summaryLength: 120, upcomingLimit: 30 });
-    if (value.length > 2000) {
-      value = composeMail({ ...options, summaryLength: 85, upcomingLimit: 30 });
-    }
-    if (value.length > 2000) {
-      value = composeMail({ ...options, summaryLength: 60, upcomingLimit: 18 });
-    }
-    if (value.length > 2000) {
-      value = composeMail({ ...options, summaryLength: 45, upcomingLimit: 12 });
-    }
-    if (value.length > 2000) {
-      value = composeMail({ ...options, summaryLength: 30, upcomingLimit: 8 });
-    }
-    return value;
-  }, [events, reportDate, horizonDays, includeTentative]);
+  const activeEvents = useMemo(
+    () => activeEventsForDay({ events, reportDate, includeTentative }),
+    [events, reportDate, includeTentative]
+  );
+  const selectedEvents = activeEvents.filter((event) => !excludedIds.includes(event.id));
+  const mail = useMemo(
+    () => composeMail({ activeEvents: selectedEvents, reportDate, summaryOverrides }),
+    [selectedEvents, reportDate, summaryOverrides]
+  );
 
   async function copyMail() {
     await navigator.clipboard.writeText(mail);
@@ -166,8 +155,28 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
 
   function reset() {
     setReportDate(new Date().toISOString().slice(0, 10));
-    setHorizonDays(8);
     setIncludeTentative(true);
+    setExcludedIds([]);
+    setSummaryOverrides({});
+  }
+
+  function toggleEvent(eventId: string, selected: boolean) {
+    setExcludedIds((current) => selected
+      ? current.filter((id) => id !== eventId)
+      : [...new Set([...current, eventId])]
+    );
+  }
+
+  function selectAll() {
+    const activeIds = new Set(activeEvents.map((event) => event.id));
+    setExcludedIds((current) => current.filter((id) => !activeIds.has(id)));
+  }
+
+  function clearAll() {
+    setExcludedIds((current) => [...new Set([
+      ...current,
+      ...activeEvents.map((event) => event.id)
+    ])]);
   }
 
   return (
@@ -181,36 +190,21 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
         </div>
         <div className="actions">
           <button className="button" type="button" onClick={reset}><RotateCcw size={15} /> Reset</button>
-          <button className="button primary" type="button" onClick={copyMail}>
+          <button className="button primary" type="button" onClick={copyMail} disabled={mail.length > 2000}>
             <Copy size={15} /> {copied ? "Copied" : "Copy mail"}
           </button>
         </div>
       </div>
       <div className="card-body grid cols-2 daily-mail-layout">
         <div className="form">
-          <div className="form-grid">
-            <div className="field">
-              <label htmlFor="mail-report-date">Update date (UTC)</label>
-              <input
-                id="mail-report-date"
-                type="date"
-                value={reportDate}
-                onChange={(event) => setReportDate(event.target.value)}
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="mail-horizon">Upcoming window</label>
-              <select
-                id="mail-horizon"
-                value={horizonDays}
-                onChange={(event) => setHorizonDays(Number(event.target.value))}
-              >
-                <option value={3}>Next 2 days</option>
-                <option value={5}>Next 4 days</option>
-                <option value={7}>Next 6 days</option>
-                <option value={8}>Next 7 days</option>
-              </select>
-            </div>
+          <div className="field">
+            <label htmlFor="mail-report-date">Update date (UTC)</label>
+            <input
+              id="mail-report-date"
+              type="date"
+              value={reportDate}
+              onChange={(event) => setReportDate(event.target.value)}
+            />
           </div>
 
           <label className="import-replace">
@@ -225,6 +219,49 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
             </span>
           </label>
 
+          <div className="row space-between">
+            <strong>{selectedEvents.length} of {activeEvents.length} active events selected</strong>
+            <div className="actions">
+              <button className="button" type="button" onClick={selectAll}>Select all</button>
+              <button className="button" type="button" onClick={clearAll}>Clear all</button>
+            </div>
+          </div>
+
+          <div className="stack">
+            {activeEvents.map((event) => {
+              const selected = !excludedIds.includes(event.id);
+              return (
+                <div className={`mail-event-editor ${selected ? "selected" : ""}`} key={event.id}>
+                  <label className="mail-event-select">
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={(input) => toggleEvent(event.id, input.target.checked)}
+                    />
+                    <span>
+                      <strong>{event.name}</strong>
+                      <small>{daysLeftLabel(event, utcDay(reportDate))}</small>
+                    </span>
+                  </label>
+                  {selected && (
+                    <div className="field">
+                      <label htmlFor={`mail-summary-${event.id}`}>Member action summary</label>
+                      <textarea
+                        id={`mail-summary-${event.id}`}
+                        value={summaryOverrides[event.id] ?? actionSummary(event)}
+                        maxLength={500}
+                        onChange={(input) => setSummaryOverrides((current) => ({
+                          ...current,
+                          [event.id]: input.target.value
+                        }))}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {activeEvents.length === 0 && <div className="empty">No active events for this date.</div>}
+          </div>
         </div>
 
         <div>
