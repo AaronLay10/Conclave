@@ -19,7 +19,7 @@ Daily-mail summaries should:
 - Use `1 DAY ONLY` only when the event's complete duration is one day.
 - Use `1 DAY LEFT` on the final day of a multi-day event.
 - Display the event name and remaining-time label at size 23.
-- Keep the action summary at the game's default text size so it remains visually distinct and readable.
+- Explicitly set action summaries to the game's normal body-text size of 18 so they cannot inherit the larger event-heading size.
 - Avoid strategies that have not been verified in-game or by a reliable current source.
 
 ## Single-event announcement standard

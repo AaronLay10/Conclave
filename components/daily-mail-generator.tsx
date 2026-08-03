@@ -13,6 +13,7 @@ const GOLD = "#855400";
 const GREEN = "#176B3A";
 const BLUE = "#1E5F8A";
 const ORANGE = "#963F00";
+const BODY_SIZE = 18;
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -128,9 +129,11 @@ function composeMail({
   if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
   for (const event of activeEvents) {
     const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
+    const summaryLines = wrapMailText(summaryOverrides[event.id] ?? actionSummary(event))
+      .map((line) => `<size=${BODY_SIZE}>${line}</size>`);
     lines.push(
       `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
-      ...wrapMailText(summaryOverrides[event.id] ?? actionSummary(event)),
+      ...summaryLines,
       ""
     );
   }
