@@ -166,4 +166,3 @@ export function dailyMailSummaryForEvent(event: Pick<RokEvent, "name">) {
 export function singleEventMailForEvent(event: RokEvent) {
   return eventInstructionFor(event)?.announcement(event) ?? null;
 }
-

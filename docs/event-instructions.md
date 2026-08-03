@@ -2,8 +2,10 @@
 
 This document is the maintained reference for Conclave event descriptions and daily-mail summaries. It covers the actions members should take, leadership considerations, reset rules, and the source quality behind each entry.
 
-**Last reviewed:** August 3, 2026  
-**Time standard:** UTC  
+**Last reviewed:** August 3, 2026
+
+**Time standard:** UTC
+
 **Accuracy rule:** Current in-game event instructions and kingdom leadership directions always take priority over this reference.
 
 ## Daily-mail writing standard
