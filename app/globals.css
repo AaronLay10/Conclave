@@ -255,6 +255,7 @@ textarea { min-height: 110px; resize: vertical; }
 .import-replace span, .import-replace strong, .import-replace small { display: block; }
 .import-replace small { margin-top: 3px; font-weight: 400; }
 .import-preview { overflow: hidden; }
+.daily-mail-preview { min-height: 390px; }
 
 .calendar-shell { overflow: hidden; }
 .calendar-toolbar {
@@ -363,4 +364,5 @@ textarea { min-height: 110px; resize: vertical; }
   .calendar-event { font-size: .62rem; }
   .event-row { grid-template-columns: 1fr; }
   .detail-list { grid-template-columns: 1fr; gap: 4px; }
+  .daily-mail-layout { grid-template-columns: 1fr; }
 }
