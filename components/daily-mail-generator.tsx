@@ -129,7 +129,7 @@ function composeMail({
   for (const event of activeEvents) {
     const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
     lines.push(
-      `<b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color>`,
+      `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
       ...wrapMailText(summaryOverrides[event.id] ?? actionSummary(event)),
       ""
     );

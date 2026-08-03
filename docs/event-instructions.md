@@ -18,6 +18,8 @@ Daily-mail summaries should:
 - Avoid dates for active events; Conclave adds the remaining-time label separately.
 - Use `1 DAY ONLY` only when the event's complete duration is one day.
 - Use `1 DAY LEFT` on the final day of a multi-day event.
+- Display the event name and remaining-time label at size 23.
+- Keep the action summary at the game's default text size so it remains visually distinct and readable.
 - Avoid strategies that have not been verified in-game or by a reliable current source.
 
 ## Single-event announcement standard
