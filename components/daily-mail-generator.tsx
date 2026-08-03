@@ -128,7 +128,7 @@ function composeMail({
 
   const tentative = activeEvents.filter(needsMailConfirmation);
   if (tentative.length > 0) {
-    lines.push(`<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
+    lines.push(`<color=${ORANGE}>* Alliance Leadership will schedule this event.</color>`);
   }
 
   return lines.join("\n");
