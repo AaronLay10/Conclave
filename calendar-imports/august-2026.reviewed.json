@@ -11,7 +11,7 @@
       "start_at": "2026-08-02T00:00:00Z",
       "end_at": "2026-08-04T00:00:00Z",
       "description": "Defeat Barbarian Troops to earn milestone rewards. Barbarian Troops above level 40 count as two defeats.",
-      "preparation": "Use daily action points efficiently and coordinate stronger barbarian targets with other governors.",
+      "preparation": "Defeat Barbarian Troops; targets above level 40 count as two. Work with other governors on stronger barbarians and claim rewards before the daily reset.",
       "rules": "Progress resets daily at 00:00 UTC; claim daily rewards before reset.",
       "source_ref": "Screenshots 10.21.18, 10.28.51, and 10.28.59",
       "source_details": {
@@ -28,7 +28,7 @@
       "start_at": "2026-08-02T00:00:00Z",
       "end_at": "2026-08-04T00:00:00Z",
       "description": "Use speedup items in your city to earn milestone and ranking rewards.",
-      "preparation": "Save building, research, training, and healing speedups for the event window.",
+      "preparation": "Use any kind of speedup inside your city to reach milestones and compete for a top-100 rank.",
       "rules": "Only speedups used in your city earn points. The top 100 receive rank rewards.",
       "source_ref": "Screenshots 10.29.15, 10.29.27, and 10.29.42",
       "source_details": {
@@ -45,7 +45,7 @@
       "start_at": "2026-08-02T00:00:00Z",
       "end_at": "2026-08-04T00:00:00Z",
       "description": "Defeat ordinary Barbarian Troops to collect Bone Necklaces, obtain Lohar relics, and summon Lohar's troop.",
-      "preparation": "Budget action points for barbarians. Coordinate alliance rallies for summoned Lohar troops.",
+      "preparation": "Defeat Barbarian Troops for Bone Necklaces, use necklaces to obtain Lohar relics, summon Lohar, and rally his troop with alliance members.",
       "rules": "Any governor may collect event items, but an alliance is required to rally Lohar's troop.",
       "source_ref": "Screenshots 10.30.43, 10.30.52, and 10.31.00",
       "source_details": {
@@ -62,7 +62,7 @@
       "start_at": "2026-08-02T00:00:00Z",
       "end_at": "2026-08-05T00:00:00Z",
       "description": "Challenge Chief Torgny and compete on highest damage dealt in a single challenge.",
-      "preparation": "Governors need City Hall level 8 or higher. Plan up to five challenges per day and use the daily featured unit type.",
+      "preparation": "Governors with City Hall level 8 or higher can challenge Torgny up to five times daily. Use the featured unit type and aim for your highest damage in one challenge.",
       "rules": "Torgny appears at 00:00, 06:00, 12:00, and 18:00 UTC for three hours. He cannot be rallied. Barbarian damage buffs and skills do not affect Torgny or his cohort.",
       "source_ref": "Screenshots 10.30.15, 10.30.23, and 10.30.32",
       "source_details": {
@@ -95,7 +95,7 @@
       "start_at": "2026-08-03T00:00:00Z",
       "end_at": "2026-08-07T00:00:00Z",
       "description": "Gather resources on the map to complete daily quests and earn rewards.",
-      "preparation": "Keep gathering marches active and target the resource-specific daily thresholds.",
+      "preparation": "Gather resources on the map, complete the resource-specific daily quests, and claim rewards before the 00:00 UTC reset.",
       "rules": "Quest progress resets daily at 00:00 UTC; claim daily rewards before reset.",
       "source_ref": "Screenshots 10.29.51 and 10.30.00",
       "source_details": {

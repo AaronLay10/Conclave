@@ -38,6 +38,7 @@ function firstSentence(value: string, maxLength: number) {
 
 function actionSummary(event: RokEvent, maxLength: number) {
   if (event.preparation) return firstSentence(event.preparation, maxLength);
+  if (event.rules) return firstSentence(event.rules, maxLength);
   if (event.scope === "alliance") {
     return firstSentence("Watch alliance announcements for the confirmed time and instructions.", maxLength);
   }
