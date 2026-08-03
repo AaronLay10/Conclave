@@ -63,6 +63,8 @@ export default async function EventDetailPage({
               <dt>Certainty</dt><dd>{event.certainty.replaceAll("_", " ")}</dd>
               <dt>Workflow</dt><dd>{event.status}</dd>
               <dt>Location</dt><dd>{event.location ?? "Rise of Kingdoms"}</dd>
+              {event.source_ref && <><dt>Evidence</dt><dd>{event.source_ref}</dd></>}
+              {event.import_key && <><dt>Import key</dt><dd><span className="code">{event.import_key}</span></dd></>}
             </dl>
           </div>
         </div>

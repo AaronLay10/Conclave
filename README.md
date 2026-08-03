@@ -80,6 +80,15 @@ Without Supabase values, Conclave runs in demo mode using Kingdom 4126 sample da
    ```
 6. Restart the Next.js dev server.
 
+### In-game calendar imports
+
+Event Directors can open **Events → Calendar Import** to preview and import an
+evidence-backed JSON batch. Migration `0005_calendar_import_provenance.sql`
+adds stable per-kingdom import keys and screenshot provenance. Imports require
+explicit UTC timestamps, enter Leadership Review, and skip existing keys unless
+replacement is deliberately enabled. See `calendar-imports/README.md` for the
+file format.
+
 ## Discord OAuth setup
 
 1. Create an application named **Conclave** in the Discord Developer Portal.

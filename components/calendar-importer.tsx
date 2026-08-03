@@ -1,0 +1,177 @@
+"use client";
+
+import { useMemo, useState } from "react";
+import { AlertTriangle, CheckCircle2, FileJson, Upload } from "lucide-react";
+
+type PreviewEvent = {
+  import_key: string;
+  name: string;
+  certainty: "confirmed" | "predicted" | "leadership_scheduled" | "tbd";
+  start_at: string;
+  end_at: string;
+  source_ref: string;
+};
+
+type ImportBatch = {
+  batch_name: string;
+  replace_existing?: boolean;
+  events: PreviewEvent[];
+};
+
+const starterBatch = {
+  batch_name: "Kingdom 4126 — August 2026 in-game calendar",
+  replace_existing: false,
+  events: []
+};
+
+function displayUtc(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+}
+
+export function CalendarImporter() {
+  const [raw, setRaw] = useState(JSON.stringify(starterBatch, null, 2));
+  const [replaceExisting, setReplaceExisting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<string | null>(null);
+
+  const parsed = useMemo(() => {
+    try {
+      const value = JSON.parse(raw) as ImportBatch;
+      if (!value || !Array.isArray(value.events)) throw new Error("The file needs an events array.");
+      return { value, error: null };
+    } catch (parseError) {
+      return {
+        value: null,
+        error: parseError instanceof Error ? parseError.message : "Invalid JSON."
+      };
+    }
+  }, [raw]);
+
+  async function loadFile(file?: File) {
+    if (!file) return;
+    setRaw(await file.text());
+    setError(null);
+    setResult(null);
+  }
+
+  async function importEvents() {
+    if (!parsed.value || parsed.value.events.length === 0) return;
+    setSubmitting(true);
+    setError(null);
+    setResult(null);
+
+    try {
+      const response = await fetch("/api/events/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...parsed.value, replace_existing: replaceExisting })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "The import failed.");
+      setResult(`Imported ${data.inserted}, updated ${data.updated}, skipped ${data.skipped}.`);
+    } catch (importError) {
+      setError(importError instanceof Error ? importError.message : "The import failed.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const events = parsed.value?.events ?? [];
+
+  return (
+    <div className="stack">
+      <div className="card">
+        <div className="card-header">
+          <div className="row"><FileJson size={18} /><strong>Import file</strong></div>
+          <small>JSON · maximum 100 events</small>
+        </div>
+        <div className="card-body form">
+          <div className="import-guidance">
+            <CheckCircle2 size={18} />
+            <div>
+              <strong>Safe by default</strong>
+              <p>All imported events enter Leadership Review. UTC timestamps must end in <span className="code">Z</span>, and stable import keys prevent duplicates.</p>
+            </div>
+          </div>
+
+          <div className="field">
+            <label htmlFor="calendar-file">Choose a prepared calendar file</label>
+            <input
+              id="calendar-file"
+              type="file"
+              accept="application/json,.json"
+              onChange={(event) => loadFile(event.target.files?.[0])}
+            />
+          </div>
+
+          <div className="field">
+            <label htmlFor="calendar-json">Or review and paste JSON</label>
+            <textarea
+              id="calendar-json"
+              className="import-json"
+              value={raw}
+              onChange={(event) => setRaw(event.target.value)}
+              spellCheck={false}
+            />
+          </div>
+
+          <label className="import-replace">
+            <input
+              type="checkbox"
+              checked={replaceExisting}
+              onChange={(event) => setReplaceExisting(event.target.checked)}
+            />
+            <span>
+              <strong>Replace matching imports</strong>
+              <small>Leave off to preserve edits made after an earlier import.</small>
+            </span>
+          </label>
+
+          {parsed.error && <div className="form-error">{parsed.error}</div>}
+          {error && <div className="form-error">{error}</div>}
+          {result && <div className="form-success">{result}</div>}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-header">
+          <strong>Preview · {events.length} events</strong>
+          <button
+            className="button primary"
+            disabled={submitting || Boolean(parsed.error) || events.length === 0}
+            onClick={importEvents}
+          >
+            <Upload size={17} /> {submitting ? "Importing…" : "Import reviewed events"}
+          </button>
+        </div>
+        {events.length === 0 ? (
+          <div className="empty">Add reviewed screenshot events to the file to preview them here.</div>
+        ) : (
+          <div className="import-preview">
+            {events.map((event, index) => {
+              const uncertain = event.certainty !== "confirmed";
+              return (
+                <div className="event-row" key={`${event.import_key}-${index}`}>
+                  <div>
+                    <div className="event-name">{event.name}</div>
+                    <div className="event-meta">{event.import_key}</div>
+                  </div>
+                  <div>
+                    <div>{displayUtc(event.start_at)}</div>
+                    <div className="event-meta">to {displayUtc(event.end_at)}</div>
+                  </div>
+                  <span className={`badge ${event.certainty}`}>
+                    {uncertain && <AlertTriangle size={12} />}{event.certainty.replaceAll("_", " ")}
+                  </span>
+                  <div className="event-meta">{event.source_ref}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

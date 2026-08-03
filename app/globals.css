@@ -224,6 +224,37 @@ input:focus, select:focus, textarea:focus { border-color: var(--gold); box-shado
 textarea { min-height: 110px; resize: vertical; }
 .form-error { color: #f3a0a0; font-size: .82rem; }
 .form-success { color: #8edcae; font-size: .82rem; }
+.import-json {
+  min-height: 270px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .8rem;
+  line-height: 1.5;
+}
+.import-guidance {
+  display: flex;
+  gap: 11px;
+  align-items: flex-start;
+  padding: 13px;
+  border: 1px solid rgba(86,184,131,.35);
+  border-radius: 9px;
+  background: rgba(86,184,131,.08);
+  color: #bce8cf;
+}
+.import-guidance svg { flex: 0 0 auto; margin-top: 2px; }
+.import-guidance p { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
+.import-replace {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(14,23,35,.6);
+}
+.import-replace input { width: auto; margin-top: 3px; }
+.import-replace span, .import-replace strong, .import-replace small { display: block; }
+.import-replace small { margin-top: 3px; font-weight: 400; }
+.import-preview { overflow: hidden; }
 
 .calendar-shell { overflow: hidden; }
 .calendar-toolbar {

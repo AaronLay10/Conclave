@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { FileUp, Plus } from "lucide-react";
 import { DemoBanner } from "@/components/demo-banner";
 import { StatusBadge } from "@/components/status-badge";
 import { getEvents } from "@/lib/data";
@@ -16,7 +16,10 @@ export default async function EventsPage() {
           <h1>Events</h1>
           <p className="muted">Every kingdom and alliance event in one operational list.</p>
         </div>
-        <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>
+        <div className="actions">
+          <Link className="button" href="/events/import"><FileUp size={17} /> Import calendar</Link>
+          <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>
+        </div>
       </div>
 
       <div className="card">

@@ -35,6 +35,11 @@ export interface RokEvent {
   rules?: string | null;
   preparation?: string | null;
   location?: string | null;
+  import_key?: string | null;
+  source_kind?: "manual" | "ingame_screenshot" | "official" | "prediction";
+  source_ref?: string | null;
+  source_details?: Record<string, unknown>;
+  imported_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
