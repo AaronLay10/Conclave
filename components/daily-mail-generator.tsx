@@ -2,7 +2,10 @@
 
 import { Copy, Mail, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
-import { dailyMailSummaryForEvent } from "@/lib/event-instruction-library";
+import {
+  dailyMailSummaryForEvent,
+  withoutCityHallRequirements
+} from "@/lib/event-instruction-library";
 import type { RokEvent } from "@/lib/types";
 
 const DAY_MS = 86_400_000;
@@ -45,15 +48,15 @@ function daysLeftLabel(event: RokEvent, reportStart: Date) {
 function actionSummary(event: RokEvent) {
   const researchedSummary = dailyMailSummaryForEvent(event);
   if (researchedSummary) return researchedSummary;
-  if (event.preparation) return event.preparation.trim();
-  if (event.rules) return event.rules.trim();
+  if (event.preparation) return withoutCityHallRequirements(event.preparation);
+  if (event.rules) return withoutCityHallRequirements(event.rules);
   if (event.scope === "alliance") {
     return "Await alliance leadership's confirmed time and instructions.";
   }
   if (event.certainty !== "confirmed") {
     return "Open the event page at reset and follow the listed objectives.";
   }
-  if (event.description) return event.description.trim();
+  if (event.description) return withoutCityHallRequirements(event.description);
   return "Open the in-game event page and follow the listed instructions.";
 }
 

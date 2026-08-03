@@ -13,8 +13,15 @@ type EventInstruction = {
   announcement: (event: RokEvent) => string;
 };
 
+export function withoutCityHallRequirements(value: string) {
+  return value
+    .replace(/[^.!?\n]*city hall[^.!?\n]*[.!?]?\s*/gi, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
 function safeMailText(value: string) {
-  return value.replace(/[<>]/g, "").trim();
+  return withoutCityHallRequirements(value).replace(/[<>]/g, "").trim();
 }
 
 function title(value: string) {
@@ -35,7 +42,7 @@ function eventWindow(event: RokEvent) {
 
 function leadershipInstructions(event: RokEvent) {
   const instructions = [event.preparation, event.rules]
-    .map((value) => value?.trim())
+    .map((value) => value ? withoutCityHallRequirements(value) : "")
     .filter((value): value is string => Boolean(value));
 
   if (instructions.length === 0) return "";
@@ -67,15 +74,49 @@ const EVENT_INSTRUCTIONS: EventInstruction[] = [
     key: "mercantile-melee",
     aliases: ["mercantile melee"],
     dailySummary:
-      "Apply to join the Alliance Caravan during preparation and configure your strongest available lineup. Follow the Caravan Captain's instructions and collect your rewards after the caravan arrives.",
+      "Dispatch your Personal Caravan with a strong defense, then use your raid attempts against rival caravans you can defeat. Apply to the Alliance Caravan during preparation and follow the Caravan Captain's lineup instructions.",
     announcement: (event) => compose(
       title("MERCANTILE MELEE"),
       eventWindow(event),
-      heading("JOIN THE CARAVAN"),
-      "Apply to join the Alliance Caravan during the preparation phase and configure the strongest lineup available to you. Follow the Caravan Captain's lineup and participation instructions.",
-      "Governors must have been in the alliance for at least 8 hours to apply. The appointed Caravan Captain must have been in the alliance for at least 24 hours.",
-      warning("BE READY BEFORE DEPARTURE"),
-      "Complete your setup before preparation ends. Personal Caravan rewards will be delivered automatically by in-game mail after the caravan reaches its destination.",
+      heading("TRADE AND RAID"),
+      "Dispatch your Personal Caravan with the strongest defensive lineup available. Check your individual caravan opportunities and collect the rewards delivered after each successful arrival.",
+      "Use your available raid attempts against rival caravans. Review the defending lineup and reward first, then choose targets your march can defeat.",
+      heading("ALLIANCE CARAVAN"),
+      "Apply during the preparation phase and follow the Caravan Captain's lineup instructions. Governors must have been in the alliance for at least 8 hours to apply; the captain requires at least 24 hours.",
+      warning("COMPLETE EVERY OPPORTUNITY"),
+      "Do not leave Personal Caravan departures or raid attempts unused. Finish your setup before the Alliance Caravan preparation phase ends.",
+      leadershipInstructions(event)
+    )
+  },
+  {
+    key: "ceroli-crisis",
+    aliases: ["ceroli crisis"],
+    dailySummary:
+      "Form a four-governor team, choose your difficulty, role, and skills, then follow the selected boss's mechanics. Spread out, avoid marked attacks, handle spawned enemies, and use team skills at the right time.",
+    announcement: (event) => compose(
+      title("CEROLI CRISIS"),
+      eventWindow(event),
+      heading("BUILD YOUR TEAM"),
+      "Form a four-governor team and agree on the difficulty before entering. Choose Tank, Damage, or Support skills that match your commander pair and the needs of the group.",
+      heading("FOLLOW THE BOSS MECHANICS"),
+      "Spread out when attacks punish grouped marches, move out of marked danger areas, defeat spawned enemies when required, and save healing, taunts, cleanses, and damage boosts for the correct mechanic.",
+      warning("TEAMWORK WINS"),
+      "Do not treat every boss the same. Review the selected chieftain's strategy panel before starting and coordinate movement and skills with the team.",
+      leadershipInstructions(event)
+    )
+  },
+  {
+    key: "trial-of-torgny",
+    aliases: ["trial of torgny"],
+    dailySummary:
+      "Challenge Torgny up to five times today. Use the featured troop type, avoid unnecessary movement, and build one high-damage attempt for the daily ranking rewards.",
+    announcement: (event) => compose(
+      title("TRIAL OF TORGNY"),
+      eventWindow(event),
+      heading("MAXIMIZE ONE CHALLENGE"),
+      "Challenge Torgny up to five times each day. Use the featured troop type for bonus damage and focus on producing your highest damage in a single attempt for the daily ranking.",
+      warning("PLAN YOUR ATTEMPTS"),
+      "Torgny appears at 00:00, 06:00, 12:00, and 18:00 UTC for three hours. He cannot be rallied, and normal Barbarian damage bonuses do not affect him or his cohort.",
       leadershipInstructions(event)
     )
   },
