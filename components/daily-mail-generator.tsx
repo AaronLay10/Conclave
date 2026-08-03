@@ -13,6 +13,7 @@ const GOLD = "#855400";
 const GREEN = "#176B3A";
 const BLUE = "#1E5F8A";
 const ORANGE = "#963F00";
+const BODY_SIZE = 18;
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -35,14 +36,20 @@ function heading(value: string, color: string, size = 27) {
 }
 
 function daysLeftLabel(event: RokEvent, reportStart: Date) {
-  const tomorrow = new Date(reportStart.getTime() + DAY_MS);
-  const fullDaysAfterToday = Math.ceil(
-    (new Date(event.end_at).getTime() - tomorrow.getTime()) / DAY_MS
+  const eventDurationDays = Math.ceil(
+    (new Date(event.end_at).getTime() - new Date(event.start_at).getTime()) / DAY_MS
   );
 
-  return fullDaysAfterToday <= 1
-    ? "1 DAY ONLY"
-    : `${fullDaysAfterToday} DAYS LEFT`;
+  if (eventDurationDays <= 1) return "1 DAY ONLY";
+
+  const remainingEventDays = Math.max(
+    1,
+    Math.ceil((new Date(event.end_at).getTime() - reportStart.getTime()) / DAY_MS)
+  );
+
+  return remainingEventDays === 1
+    ? "1 DAY LEFT"
+    : `${remainingEventDays} DAYS LEFT`;
 }
 
 function actionSummary(event: RokEvent) {
@@ -121,9 +128,11 @@ function composeMail({
   if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
   for (const event of activeEvents) {
     const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
+    const summaryLines = wrapMailText(summaryOverrides[event.id] ?? actionSummary(event))
+      .map((line) => `<size=${BODY_SIZE}>${line}</size>`);
     lines.push(
-      `<b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color>`,
-      ...wrapMailText(summaryOverrides[event.id] ?? actionSummary(event)),
+      `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
+      ...summaryLines,
       ""
     );
   }
