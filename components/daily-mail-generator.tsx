@@ -5,6 +5,10 @@ import { useMemo, useState } from "react";
 import type { RokEvent } from "@/lib/types";
 
 const DAY_MS = 86_400_000;
+const GOLD = "#F0C96A";
+const GREEN = "#63D995";
+const BLUE = "#6FC5F2";
+const ORANGE = "#FFB45E";
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -18,16 +22,23 @@ function dateLabel(value: Date) {
   }).format(value).toUpperCase();
 }
 
-function eventEndLabel(event: RokEvent) {
-  const end = new Date(event.end_at);
-  const isReset = end.getUTCHours() === 0 && end.getUTCMinutes() === 0;
+function safeMailText(value: string) {
+  return value.replace(/[<>]/g, "").trim();
+}
 
-  if (isReset) {
-    return `Through ${dateLabel(new Date(end.getTime() - 1))}`;
-  }
+function heading(value: string, color: string, size = 20) {
+  return `<size=${size}><b><color=${color}>${safeMailText(value)}</color></b></size>`;
+}
 
-  const time = `${String(end.getUTCHours()).padStart(2, "0")}:${String(end.getUTCMinutes()).padStart(2, "0")}`;
-  return `Ends ${dateLabel(end)} ${time}`;
+function daysLeftLabel(event: RokEvent, reportStart: Date) {
+  const tomorrow = new Date(reportStart.getTime() + DAY_MS);
+  const fullDaysAfterToday = Math.ceil(
+    (new Date(event.end_at).getTime() - tomorrow.getTime()) / DAY_MS
+  );
+
+  return fullDaysAfterToday <= 1
+    ? "1 DAY ONLY"
+    : `${fullDaysAfterToday} DAYS LEFT`;
 }
 
 function firstSentence(value: string, maxLength: number) {
@@ -87,47 +98,52 @@ function composeMail({
   ).length - upcoming.length;
 
   const lines = [
-    `K4126 DAILY EVENT UPDATE — ${dateLabel(start)}`,
-    "All dates and times are UTC. In-game changes take priority.",
+    heading(`K4126 DAILY EVENT UPDATE — ${dateLabel(start)}`, GOLD, 24),
+    `<color=${BLUE}>All times UTC • In-game changes take priority</color>`,
     ""
   ];
 
-  lines.push("ACTIVE");
+  lines.push(heading("ACTIVE EVENTS", GREEN));
   if (active.length === 0) lines.push("No tracked events are active today.");
   for (const event of active) {
-    const marker = event.certainty === "confirmed" ? "" : " *";
-    lines.push(`• ${event.name.toUpperCase()}${marker} — ${eventEndLabel(event)}: ${actionSummary(event, summaryLength)}`);
+    const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
+    lines.push(
+      `<b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color>`,
+      safeMailText(actionSummary(event, summaryLength))
+    );
   }
 
-  lines.push("", "COMING NEXT");
+  lines.push("", heading("COMING NEXT", BLUE));
   if (upcoming.length === 0) lines.push(`No tracked starts in the next ${horizonDays - 1} days.`);
 
   let previousLabel = "";
   for (const event of upcoming) {
     const label = dateLabel(new Date(event.start_at));
-    const marker = event.certainty === "confirmed" ? "" : "*";
-    if (label !== previousLabel) lines.push(label);
-    lines.push(`• ${event.name}${marker}: ${actionSummary(event, summaryLength)}`);
+    const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
+    if (label !== previousLabel) lines.push(`<color=${GOLD}><b>${label}</b></color>`);
+    lines.push(
+      `• <b>${safeMailText(event.name)}</b>${marker}: ${safeMailText(actionSummary(event, summaryLength))}`
+    );
     previousLabel = label;
   }
   if (omittedUpcoming > 0) lines.push(`+ ${omittedUpcoming} more events in Conclave`);
 
   const tentative = [...active, ...upcoming].filter((event) => event.certainty !== "confirmed");
   if (tentative.length > 0 || leadershipNote.trim()) {
-    lines.push("", "CHANGES & NOTES");
-    if (leadershipNote.trim()) lines.push(leadershipNote.trim());
+    lines.push("", heading("CHANGES & NOTES", ORANGE));
+    if (leadershipNote.trim()) lines.push(`<b>${safeMailText(leadershipNote)}</b>`);
     if (tentative.length > 0) {
-      lines.push("* Tentative calendar window or time; await leadership confirmation.");
+      lines.push(`<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
     }
   }
 
-  lines.push("", "Watch Discord and Conclave for confirmed times and kingdom rules.");
+  lines.push("", `<color=${GOLD}><b>Watch Discord and Conclave for confirmed times and kingdom rules.</b></color>`);
   return lines.join("\n");
 }
 
 export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
   const [reportDate, setReportDate] = useState(new Date().toISOString().slice(0, 10));
-  const [horizonDays, setHorizonDays] = useState(7);
+  const [horizonDays, setHorizonDays] = useState(8);
   const [includeTentative, setIncludeTentative] = useState(true);
   const [leadershipNote, setLeadershipNote] = useState("");
   const [copied, setCopied] = useState(false);
@@ -136,14 +152,18 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
     const options = { events, reportDate, horizonDays, includeTentative, leadershipNote };
     let value = composeMail({ ...options, summaryLength: 120, upcomingLimit: 30 });
     if (value.length > 2000) {
-      value = composeMail({ ...options, summaryLength: 80, upcomingLimit: 30 });
+      value = composeMail({ ...options, summaryLength: 85, upcomingLimit: 30 });
     }
     if (value.length > 2000) {
-      value = composeMail({ ...options, summaryLength: 60, upcomingLimit: 15 });
+      value = composeMail({ ...options, summaryLength: 60, upcomingLimit: 18 });
     }
-    return value.length <= 2000
-      ? value
-      : `${value.slice(0, 1940).trimEnd()}\n\nSee Conclave for the complete schedule.`;
+    if (value.length > 2000) {
+      value = composeMail({ ...options, summaryLength: 45, upcomingLimit: 12 });
+    }
+    if (value.length > 2000) {
+      value = composeMail({ ...options, summaryLength: 30, upcomingLimit: 8 });
+    }
+    return value;
   }, [events, reportDate, horizonDays, includeTentative, leadershipNote]);
 
   async function copyMail() {
@@ -154,7 +174,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
 
   function reset() {
     setReportDate(new Date().toISOString().slice(0, 10));
-    setHorizonDays(7);
+    setHorizonDays(8);
     setIncludeTentative(true);
     setLeadershipNote("");
   }
@@ -227,8 +247,11 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
         </div>
 
         <div>
-          <div className={`counter ${mail.length > 2000 ? "over" : ""}`} style={{ marginBottom: 8 }}>
-            {mail.length} / 2,000 characters
+          <div className="row space-between" style={{ marginBottom: 8 }}>
+            <small>Formatting renders after the code is pasted into Rise of Kingdoms.</small>
+            <div className={`counter ${mail.length > 2000 ? "over" : ""}`}>
+              {mail.length} / 2,000 characters
+            </div>
           </div>
           <div className="copy-box daily-mail-preview">{mail}</div>
         </div>
