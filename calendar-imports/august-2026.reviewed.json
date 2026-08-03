@@ -1,0 +1,232 @@
+{
+  "batch_name": "Kingdom 4126 — August 2026 screenshots reviewed 2026-08-03",
+  "replace_existing": false,
+  "events": [
+    {
+      "import_key": "rok-4126-2026-08:war-forever:2026-08-02",
+      "name": "War Forever",
+      "category": "Barbarian Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-02T00:00:00Z",
+      "end_at": "2026-08-04T00:00:00Z",
+      "description": "Defeat Barbarian Troops to earn milestone rewards. Barbarian Troops above level 40 count as two defeats.",
+      "preparation": "Use daily action points efficiently and coordinate stronger barbarian targets with other governors.",
+      "rules": "Progress resets daily at 00:00 UTC; claim daily rewards before reset.",
+      "source_ref": "Screenshots 10.21.18, 10.28.51, and 10.28.59",
+      "source_details": {
+        "evidence": "The in-game calendar bar spans August 2–3; the detail panel confirms the daily 00:00 UTC reset but does not print the overall UTC range.",
+        "review_note": "Availability boundaries are represented as reset boundaries; confirm before publishing. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:now-or-never:2026-08-02",
+      "name": "Now or Never",
+      "category": "Power Development",
+      "scope": "kingdom",
+      "certainty": "confirmed",
+      "start_at": "2026-08-02T00:00:00Z",
+      "end_at": "2026-08-04T00:00:00Z",
+      "description": "Use speedup items in your city to earn milestone and ranking rewards.",
+      "preparation": "Save building, research, training, and healing speedups for the event window.",
+      "rules": "Only speedups used in your city earn points. The top 100 receive rank rewards.",
+      "source_ref": "Screenshots 10.29.15, 10.29.27, and 10.29.42",
+      "source_details": {
+        "evidence": "The event panel explicitly shows UTC 2026/08/02–2026/08/03 and the remaining-time countdown resolves to the August 4 reset.",
+        "review_note": "Stored end is the exclusive reset boundary following the displayed final date."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:lohars-trial:2026-08-02",
+      "name": "Lohar's Trial",
+      "category": "Barbarian Event",
+      "scope": "kingdom",
+      "certainty": "confirmed",
+      "start_at": "2026-08-02T00:00:00Z",
+      "end_at": "2026-08-04T00:00:00Z",
+      "description": "Defeat ordinary Barbarian Troops to collect Bone Necklaces, obtain Lohar relics, and summon Lohar's troop.",
+      "preparation": "Budget action points for barbarians. Coordinate alliance rallies for summoned Lohar troops.",
+      "rules": "Any governor may collect event items, but an alliance is required to rally Lohar's troop.",
+      "source_ref": "Screenshots 10.30.43, 10.30.52, and 10.31.00",
+      "source_details": {
+        "evidence": "The event panel explicitly shows UTC 2026/08/02–2026/08/03 and 06:29 remaining at approximately 17:31 UTC on August 3.",
+        "review_note": "Stored end is the exclusive August 4 reset boundary."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:trial-of-torgny:2026-08-02",
+      "name": "Trial of Torgny",
+      "category": "PvE Challenge",
+      "scope": "kingdom",
+      "certainty": "confirmed",
+      "start_at": "2026-08-02T00:00:00Z",
+      "end_at": "2026-08-05T00:00:00Z",
+      "description": "Challenge Chief Torgny and compete on highest damage dealt in a single challenge.",
+      "preparation": "Governors need City Hall level 8 or higher. Plan up to five challenges per day and use the daily featured unit type.",
+      "rules": "Torgny appears at 00:00, 06:00, 12:00, and 18:00 UTC for three hours. He cannot be rallied. Barbarian damage buffs and skills do not affect Torgny or his cohort.",
+      "source_ref": "Screenshots 10.30.15, 10.30.23, and 10.30.32",
+      "source_details": {
+        "evidence": "The event panel explicitly shows UTC 2026/08/02–2026/08/04; the instructions state that each instance lasts three days.",
+        "review_note": "Stored end is the exclusive August 5 reset boundary."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:ceroli-crisis:2026-08-03",
+      "name": "Ceroli Crisis",
+      "category": "Team PvE",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-03T00:00:00Z",
+      "end_at": "2026-08-06T00:00:00Z",
+      "description": "Ceroli Crisis availability window shown in the in-game event calendar.",
+      "preparation": "Confirm team composition, difficulty, and participation requirements in game before announcing.",
+      "source_ref": "Screenshot 10.21.18",
+      "source_details": {
+        "evidence": "The in-game calendar bar spans August 3–5.",
+        "review_note": "Exact UTC boundaries and activity details are not shown; reset-boundary availability is provisional. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:daily-gathering:2026-08-03",
+      "name": "Daily Gathering",
+      "category": "Gathering",
+      "scope": "kingdom",
+      "certainty": "confirmed",
+      "start_at": "2026-08-03T00:00:00Z",
+      "end_at": "2026-08-07T00:00:00Z",
+      "description": "Gather resources on the map to complete daily quests and earn rewards.",
+      "preparation": "Keep gathering marches active and target the resource-specific daily thresholds.",
+      "rules": "Quest progress resets daily at 00:00 UTC; claim daily rewards before reset.",
+      "source_ref": "Screenshots 10.29.51 and 10.30.00",
+      "source_details": {
+        "evidence": "The event panel explicitly shows UTC 2026/08/03–2026/08/06 and states that it resets at 00:00 UTC.",
+        "review_note": "Stored end is the exclusive August 7 reset boundary."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:king-of-the-tribes:2026-08-04",
+      "name": "King of the Tribes",
+      "category": "New Kingdom Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-04T00:00:00Z",
+      "end_at": "2026-08-06T00:00:00Z",
+      "description": "King of the Tribes availability window shown in the in-game event calendar.",
+      "source_ref": "Screenshots 10.21.18 and 10.21.28",
+      "source_details": {
+        "evidence": "The calendar bar spans August 4–5.",
+        "review_note": "Exact UTC boundaries and event instructions are not shown; reset-boundary availability is provisional. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:mercantile-melee:2026-08-04",
+      "name": "Mercantile Melee",
+      "category": "New Kingdom Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-04T00:00:00Z",
+      "end_at": "2026-08-06T00:00:00Z",
+      "description": "Mercantile Melee availability window shown in the in-game event calendar.",
+      "source_ref": "Screenshots 10.21.18 and 10.21.28",
+      "source_details": {
+        "evidence": "The calendar bar spans August 4–5.",
+        "review_note": "Exact UTC boundaries and event instructions are not shown; reset-boundary availability is provisional. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:mighty-army:2026-08-04",
+      "name": "Mighty Army",
+      "category": "New Kingdom Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-04T00:00:00Z",
+      "end_at": "2026-08-08T00:00:00Z",
+      "description": "Mighty Army availability window shown in the in-game event calendar.",
+      "source_ref": "Screenshot 10.21.28",
+      "source_details": {
+        "evidence": "The calendar bar spans August 4–7.",
+        "review_note": "Exact UTC boundaries and event instructions are not shown; reset-boundary availability is provisional. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:ark-registration:2026-08-05",
+      "name": "Ark of Osiris — Registration",
+      "category": "Alliance Event",
+      "scope": "alliance",
+      "alliance_tag": "126V",
+      "certainty": "tbd",
+      "start_at": "2026-08-05T00:00:00Z",
+      "end_at": "2026-08-08T00:00:00Z",
+      "description": "Ark of Osiris registration availability for Golden Battlefield and Silver Battlefield.",
+      "preparation": "Alliance leadership should select the battlefield, confirm the match-time options, and prepare the roster after registration opens.",
+      "source_ref": "Screenshots 10.21.28 and 10.31.28",
+      "source_details": {
+        "evidence": "At approximately 2026-08-03 17:31 UTC, the panel says registration starts in 1 day 6:28:33, resolving to the August 5 reset. The calendar bar spans August 5–7.",
+        "review_note": "This is the registration window, not the Ark match. The end boundary is inferred from the calendar bar and requires leadership confirmation. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:dark-fortress-raid:2026-08-05",
+      "name": "Dark Fortress Raid",
+      "category": "Alliance Event",
+      "scope": "alliance",
+      "alliance_tag": "126V",
+      "certainty": "tbd",
+      "start_at": "2026-08-05T00:00:00Z",
+      "end_at": "2026-08-08T00:00:00Z",
+      "description": "Dark Fortress Raid availability window shown in the in-game event calendar.",
+      "preparation": "Alliance leadership must select the actual raid time and publish rally instructions before the event is announced.",
+      "source_ref": "Screenshot 10.21.28",
+      "source_details": {
+        "evidence": "The calendar bar spans August 5–7.",
+        "review_note": "The screenshot shows an availability window, not the alliance-selected raid time. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:the-golden-kingdom:2026-08-05",
+      "name": "The Golden Kingdom",
+      "category": "PvE Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-05T00:00:00Z",
+      "end_at": "2026-08-08T00:00:00Z",
+      "description": "The Golden Kingdom availability window shown in the in-game event calendar.",
+      "source_ref": "Screenshot 10.21.28",
+      "source_details": {
+        "evidence": "The calendar bar spans August 5–7.",
+        "review_note": "Exact UTC boundaries and event instructions are not shown; reset-boundary availability is provisional. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:warpath:2026-08-06",
+      "name": "Warpath",
+      "category": "New Kingdom Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-06T00:00:00Z",
+      "end_at": "2026-08-08T00:00:00Z",
+      "description": "Warpath availability window shown in the in-game event calendar.",
+      "source_ref": "Screenshot 10.21.28",
+      "source_details": {
+        "evidence": "The calendar bar spans August 6–7.",
+        "review_note": "Exact UTC boundaries and event instructions are not shown; reset-boundary availability is provisional. End is exclusive."
+      }
+    },
+    {
+      "import_key": "rok-4126-2026-08:mightiest-governor:2026-08-10",
+      "name": "The Mightiest Governor",
+      "category": "Ranking Event",
+      "scope": "kingdom",
+      "certainty": "tbd",
+      "start_at": "2026-08-10T00:00:00Z",
+      "end_at": "2026-08-16T00:00:00Z",
+      "description": "Six-stage kingdom ranking event announced as coming soon.",
+      "preparation": "Confirm the commander, kingdom placement rules, point caps, and kill-event rules before publication.",
+      "source_ref": "Screenshot 10.31.19",
+      "source_details": {
+        "evidence": "At approximately 2026-08-03 17:31 UTC, the six-day 06:28:42 countdown resolves to the August 10 reset. The panel states that the event includes six stages.",
+        "review_note": "The start is countdown-derived. The August 16 exclusive end is inferred from a conventional six-reset window and must be confirmed in game."
+      }
+    }
+  ]
+}
