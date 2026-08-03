@@ -131,7 +131,6 @@ function composeMail({
     lines.push("", `<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
   }
 
-  lines.push("", `<color=${GOLD}><b>Watch Discord and Conclave for confirmed times and kingdom rules.</b></color>`);
   return lines.join("\n");
 }
 
