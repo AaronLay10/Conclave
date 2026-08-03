@@ -21,6 +21,7 @@ Daily-mail summaries should:
 - Count the current active day when displaying remaining days: a two-day event begins at `2 DAYS LEFT`, and a four-day event begins at `4 DAYS LEFT`.
 - Display the event name and remaining-time label at size 23.
 - Explicitly set action summaries to the game's normal body-text size of 18 so they cannot inherit the larger event-heading size.
+- Keep each complete action summary inside one size tag and allow the game client to wrap it naturally.
 - Avoid strategies that have not been verified in-game or by a reliable current source.
 
 ## Single-event announcement standard
