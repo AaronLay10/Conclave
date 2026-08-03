@@ -153,6 +153,10 @@ Use `supabase/cron-setup.example.sql` to schedule the dispatcher after replacing
 5. Add the production callback URL in Supabase Auth and Discord OAuth.
 6. Do not add Supabase service-role credentials to client-visible environment variables.
 
+## Event reference
+
+Member instructions, leadership notes, source records, and reusable daily-mail summaries are maintained in [docs/event-instructions.md](docs/event-instructions.md).
+
 ## Validation
 
 ```bash

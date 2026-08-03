@@ -2,6 +2,7 @@
 
 import { Copy, Mail, RotateCcw } from "lucide-react";
 import { useMemo, useState } from "react";
+import { dailyMailSummaryForEvent } from "@/lib/event-instruction-library";
 import type { RokEvent } from "@/lib/types";
 
 const DAY_MS = 86_400_000;
@@ -42,6 +43,8 @@ function daysLeftLabel(event: RokEvent, reportStart: Date) {
 }
 
 function actionSummary(event: RokEvent) {
+  const researchedSummary = dailyMailSummaryForEvent(event);
+  if (researchedSummary) return researchedSummary;
   if (event.preparation) return event.preparation.trim();
   if (event.rules) return event.rules.trim();
   if (event.scope === "alliance") {
