@@ -42,15 +42,14 @@ function daysLeftLabel(event: RokEvent, reportStart: Date) {
 
   if (eventDurationDays <= 1) return "1 DAY ONLY";
 
-  const tomorrow = new Date(reportStart.getTime() + DAY_MS);
-  const fullDaysAfterToday = Math.max(
+  const remainingEventDays = Math.max(
     1,
-    Math.ceil((new Date(event.end_at).getTime() - tomorrow.getTime()) / DAY_MS)
+    Math.ceil((new Date(event.end_at).getTime() - reportStart.getTime()) / DAY_MS)
   );
 
-  return fullDaysAfterToday === 1
+  return remainingEventDays === 1
     ? "1 DAY LEFT"
-    : `${fullDaysAfterToday} DAYS LEFT`;
+    : `${remainingEventDays} DAYS LEFT`;
 }
 
 function actionSummary(event: RokEvent) {
