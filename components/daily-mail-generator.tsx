@@ -69,7 +69,6 @@ function composeMail({
   reportDate,
   horizonDays,
   includeTentative,
-  leadershipNote,
   summaryLength,
   upcomingLimit
 }: {
@@ -77,7 +76,6 @@ function composeMail({
   reportDate: string;
   horizonDays: number;
   includeTentative: boolean;
-  leadershipNote: string;
   summaryLength: number;
   upcomingLimit: number;
 }) {
@@ -129,12 +127,8 @@ function composeMail({
   if (omittedUpcoming > 0) lines.push(`+ ${omittedUpcoming} more events in Conclave`);
 
   const tentative = [...active, ...upcoming].filter((event) => event.certainty !== "confirmed");
-  if (tentative.length > 0 || leadershipNote.trim()) {
-    lines.push("", heading("CHANGES & NOTES", ORANGE));
-    if (leadershipNote.trim()) lines.push(`<b>${safeMailText(leadershipNote)}</b>`);
-    if (tentative.length > 0) {
-      lines.push(`<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
-    }
+  if (tentative.length > 0) {
+    lines.push("", `<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
   }
 
   lines.push("", `<color=${GOLD}><b>Watch Discord and Conclave for confirmed times and kingdom rules.</b></color>`);
@@ -145,11 +139,10 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
   const [reportDate, setReportDate] = useState(new Date().toISOString().slice(0, 10));
   const [horizonDays, setHorizonDays] = useState(8);
   const [includeTentative, setIncludeTentative] = useState(true);
-  const [leadershipNote, setLeadershipNote] = useState("");
   const [copied, setCopied] = useState(false);
 
   const mail = useMemo(() => {
-    const options = { events, reportDate, horizonDays, includeTentative, leadershipNote };
+    const options = { events, reportDate, horizonDays, includeTentative };
     let value = composeMail({ ...options, summaryLength: 120, upcomingLimit: 30 });
     if (value.length > 2000) {
       value = composeMail({ ...options, summaryLength: 85, upcomingLimit: 30 });
@@ -164,7 +157,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
       value = composeMail({ ...options, summaryLength: 30, upcomingLimit: 8 });
     }
     return value;
-  }, [events, reportDate, horizonDays, includeTentative, leadershipNote]);
+  }, [events, reportDate, horizonDays, includeTentative]);
 
   async function copyMail() {
     await navigator.clipboard.writeText(mail);
@@ -176,7 +169,6 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
     setReportDate(new Date().toISOString().slice(0, 10));
     setHorizonDays(8);
     setIncludeTentative(true);
-    setLeadershipNote("");
   }
 
   return (
@@ -234,16 +226,6 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
             </span>
           </label>
 
-          <div className="field">
-            <label htmlFor="leadership-note">Leadership changes or note</label>
-            <textarea
-              id="leadership-note"
-              value={leadershipNote}
-              maxLength={500}
-              placeholder="Example: Dark Fortress Raid moved to 19:00 UTC."
-              onChange={(event) => setLeadershipNote(event.target.value)}
-            />
-          </div>
         </div>
 
         <div>
