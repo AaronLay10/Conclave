@@ -14,6 +14,10 @@ const GREEN = "#176B3A";
 const BLUE = "#1E5F8A";
 const ORANGE = "#963F00";
 const BODY_SIZE = 18;
+const MAIL_EVENTS_WITHOUT_CONFIRMATION_MARKERS = new Set([
+  "ceroli crisis",
+  "war forever"
+]);
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -71,6 +75,11 @@ function isPublicWorkflow(event: RokEvent) {
   return ["review", "approved", "published", "active", "completed"].includes(event.status);
 }
 
+function needsMailConfirmation(event: RokEvent) {
+  return event.certainty !== "confirmed"
+    && !MAIL_EVENTS_WITHOUT_CONFIRMATION_MARKERS.has(event.name.trim().toLowerCase());
+}
+
 function activeEventsForDay({
   events,
   reportDate,
@@ -84,7 +93,7 @@ function activeEventsForDay({
   const end = new Date(start.getTime() + DAY_MS);
   return events
     .filter(isPublicWorkflow)
-    .filter((event) => includeTentative || event.certainty === "confirmed")
+    .filter((event) => includeTentative || !needsMailConfirmation(event))
     .filter((event) => new Date(event.start_at) < end && new Date(event.end_at) > start);
 }
 
@@ -108,7 +117,7 @@ function composeMail({
   lines.push(heading("ACTIVE EVENTS", GREEN));
   if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
   for (const event of activeEvents) {
-    const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
+    const marker = needsMailConfirmation(event) ? ` <color=${ORANGE}>*</color>` : "";
     const summary = safeMailText(summaryOverrides[event.id] ?? actionSummary(event));
     lines.push(
       `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
@@ -117,7 +126,7 @@ function composeMail({
     );
   }
 
-  const tentative = activeEvents.filter((event) => event.certainty !== "confirmed");
+  const tentative = activeEvents.filter(needsMailConfirmation);
   if (tentative.length > 0) {
     lines.push(`<color=${ORANGE}>* Tentative window or time — await leadership confirmation.</color>`);
   }

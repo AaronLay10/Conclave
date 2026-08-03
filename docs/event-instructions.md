@@ -22,6 +22,7 @@ Daily-mail summaries should:
 - Display the event name and remaining-time label at size 23.
 - Explicitly set action summaries to the game's normal body-text size of 18 so they cannot inherit the larger event-heading size.
 - Keep each complete action summary inside one size tag and allow the game client to wrap it naturally.
+- Do not mark War Forever or Ceroli Crisis with a leadership-confirmation asterisk; they are regular kingdom events and do not require an alliance-scheduled time.
 - Avoid strategies that have not been verified in-game or by a reliable current source.
 
 ## Single-event announcement standard
