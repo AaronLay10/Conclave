@@ -2,7 +2,10 @@
 
 import { CheckCircle2, Copy, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { singleEventMailForEvent } from "@/lib/event-instruction-library";
+import {
+  singleEventMailForEvent,
+  withoutCityHallRequirements
+} from "@/lib/event-instruction-library";
 import { createClient } from "@/lib/supabase/client";
 import type { RokEvent } from "@/lib/types";
 import { formatUtc } from "@/lib/utils";
@@ -28,7 +31,7 @@ function buildDiscordBody(event: RokEvent) {
 }
 
 function safeMailText(value: string) {
-  return value.replace(/[<>]/g, "").trim();
+  return withoutCityHallRequirements(value).replace(/[<>]/g, "").trim();
 }
 
 function buildGenericIngameMail(event: RokEvent) {

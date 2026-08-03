@@ -87,6 +87,10 @@ Sources:
 
 ### Member instructions
 
+- Configure and dispatch your Personal Caravan with the strongest defensive lineup available.
+- Complete all available Personal Caravan departures and collect the rewards delivered after successful arrivals.
+- Use your available raid attempts against rival caravans.
+- Review the target caravan's defending lineup and rewards before raiding, then choose a target your march can defeat.
 - Remain in the alliance for at least 8 hours before applying to join the Alliance Caravan.
 - Apply during the event's preparation phase.
 - Review and configure the lineup requested by the event interface.
@@ -103,7 +107,7 @@ Sources:
 
 ### Daily-mail summary
 
-> Apply to join the Alliance Caravan during preparation and configure your strongest available lineup. Follow the Caravan Captain's instructions and collect your rewards after the caravan arrives.
+> Dispatch your Personal Caravan with a strong defense, then use your raid attempts against rival caravans you can defeat. Apply to the Alliance Caravan during preparation and follow the Caravan Captain's lineup instructions.
 
 ### Single-event announcement
 
@@ -113,13 +117,16 @@ Sources:
 <size=34><b><color=#855400>MERCANTILE MELEE</color></b></size>
 <color=#1E5F8A>[PREPARATION AND DEPARTURE TIMES — UTC]</color>
 
-<size=27><b><color=#176B3A>JOIN THE CARAVAN</color></b></size>
-Apply to join the Alliance Caravan during the preparation phase and configure the strongest lineup available to you. Follow the Caravan Captain's lineup and participation instructions.
+<size=27><b><color=#176B3A>TRADE AND RAID</color></b></size>
+Dispatch your Personal Caravan with the strongest defensive lineup available. Complete your individual caravan opportunities and collect the rewards delivered after each successful arrival.
 
-Governors must have been in the alliance for at least 8 hours to apply. The appointed Caravan Captain must have been in the alliance for at least 24 hours.
+Use your available raid attempts against rival caravans. Review the defending lineup and reward first, then choose targets your march can defeat.
 
-<b><color=#963F00>BE READY BEFORE DEPARTURE</color></b>
-Complete your setup before preparation ends. Personal Caravan rewards will be delivered automatically by in-game mail after the caravan reaches its destination.
+<size=27><b><color=#176B3A>ALLIANCE CARAVAN</color></b></size>
+Apply during preparation and follow the Caravan Captain's lineup instructions. Governors need 8 hours in the alliance to apply; the captain requires 24 hours.
+
+<b><color=#963F00>COMPLETE EVERY OPPORTUNITY</color></b>
+Do not leave Personal Caravan departures or raid attempts unused. Finish your setup before Alliance Caravan preparation ends.
 ```
 
 ### Source notes
@@ -131,6 +138,58 @@ Sources:
 
 - [Official Winter's Embrace patch notes](https://forumshare-global.farlightgames.com/rok/post/2179486/?lang=en)
 - [May 2025 strategy guide](https://www.youtube.com/watch?v=sivOPaO7cLk)
+
+---
+
+## Ceroli Crisis
+
+### Member instructions
+
+- Form a four-governor team and agree on the difficulty before entering.
+- Select Tank, Damage, or Support skills that match your commander pair and the team's needs.
+- Review the selected chieftain's strategy panel before starting because every boss has different mechanics.
+- Spread out when the boss punishes grouped marches.
+- Move out of marked danger areas and reposition when the encounter calls for it.
+- Defeat spawned enemies when required instead of attacking only the boss.
+- Coordinate taunts, healing, cleansing, and damage-boost skills with the team.
+- Complete the available reward attempts before the event closes.
+
+### Leadership considerations
+
+- Help members build balanced teams rather than stacking only damage roles.
+- Encourage players to select a difficulty the complete team can clear reliably.
+- Share boss-specific instructions when the active chieftain requires special positioning or troop types.
+
+### Daily-mail summary
+
+> Form a four-governor team, choose your difficulty, role, and skills, then follow the selected boss's mechanics. Spread out, avoid marked attacks, handle spawned enemies, and use team skills at the right time.
+
+### Single-event announcement
+
+**Mail subject:** `CEROLI CRISIS`
+
+```text
+<size=34><b><color=#855400>CEROLI CRISIS</color></b></size>
+<color=#1E5F8A>[EVENT WINDOW — UTC]</color>
+
+<size=27><b><color=#176B3A>BUILD YOUR TEAM</color></b></size>
+Form a four-governor team and agree on the difficulty before entering. Choose Tank, Damage, or Support skills that match your commander pair and the needs of the group.
+
+<size=27><b><color=#176B3A>FOLLOW THE BOSS MECHANICS</color></b></size>
+Spread out when attacks punish grouped marches, move out of marked danger areas, defeat spawned enemies when required, and save healing, taunts, cleanses, and damage boosts for the correct mechanic.
+
+<b><color=#963F00>TEAMWORK WINS</color></b>
+Review the selected chieftain's strategy panel before starting and coordinate movement and skills with the team.
+```
+
+### Source notes
+
+- The January 2026 guide documents the team roles, active skills, positioning, spawned enemies, and boss-specific mechanics.
+- Confidence: **High** for the general team instructions; individual boss mechanics should be confirmed in the current strategy panel.
+
+Source:
+
+- [January 2026 Ceroli Crisis guide](https://riseofkingdomsguides.com/rise-of-kingdoms-ceroli-crisis-guide/)
 
 ---
 
@@ -247,7 +306,6 @@ Sources:
 
 ### Member instructions
 
-- Reach City Hall level 17 or higher to participate.
 - Select five armies carefully before entering. Commanders, talents, and equipment cannot be changed after the event begins.
 - Use durable front-line armies supported by strong area-damage and support commanders.
 - Clear fog to find useful items and the Guardian Chief, but avoid unnecessary fights because army health persists between battles.
@@ -288,7 +346,7 @@ Preserve healing, powerful relics, and Karaku Gold for the harder later floors. 
 
 ### Source notes
 
-- The primary guide was updated in January 2026 and documents entry requirements, locked lineups, persistent damage, checkpoints, relics, and buffs.
+- The primary guide was updated in January 2026 and documents locked lineups, persistent damage, checkpoints, relics, and buffs.
 - Confidence: **High** for the core gameplay; **moderate** for floor-specific strategy because versions can differ.
 
 Sources:
