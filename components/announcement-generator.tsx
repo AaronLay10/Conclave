@@ -2,6 +2,7 @@
 
 import { CheckCircle2, Copy, Send } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { singleEventMailForEvent } from "@/lib/event-instruction-library";
 import { createClient } from "@/lib/supabase/client";
 import type { RokEvent } from "@/lib/types";
 import { formatUtc } from "@/lib/utils";
@@ -26,11 +27,31 @@ function buildDiscordBody(event: RokEvent) {
   ].filter(Boolean).join("\n");
 }
 
+function safeMailText(value: string) {
+  return value.replace(/[<>]/g, "").trim();
+}
+
+function buildGenericIngameMail(event: RokEvent) {
+  return [
+    `<size=34><b><color=#855400>${safeMailText(event.name.toUpperCase())}</color></b></size>`,
+    `<color=#1E5F8A>${formatUtc(event.start_at)}</color>`,
+    "",
+    event.description ? safeMailText(event.description) : "",
+    event.preparation
+      ? `<size=27><b><color=#176B3A>PREPARE</color></b></size>\n${safeMailText(event.preparation)}`
+      : "",
+    event.rules
+      ? `<size=27><b><color=#176B3A>INSTRUCTIONS</color></b></size>\n${safeMailText(event.rules)}`
+      : ""
+  ].filter(Boolean).join("\n\n");
+}
+
 export function AnnouncementGenerator({ events }: { events: RokEvent[] }) {
   const [selectedId, setSelectedId] = useState(events[0]?.id ?? "");
   const [copied, setCopied] = useState("");
   const [discordTitle, setDiscordTitle] = useState("");
   const [discordBody, setDiscordBody] = useState("");
+  const [ingameBody, setIngameBody] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [publishMessage, setPublishMessage] = useState("");
   const [publishError, setPublishError] = useState("");
@@ -40,29 +61,19 @@ export function AnnouncementGenerator({ events }: { events: RokEvent[] }) {
     () => event ? buildDiscordBody(event) : "",
     [event]
   );
+  const generatedIngameBody = useMemo(
+    () => event ? singleEventMailForEvent(event) ?? buildGenericIngameMail(event) : "",
+    [event]
+  );
 
   useEffect(() => {
     if (!event) return;
     setDiscordTitle(event.name);
     setDiscordBody(generatedDiscordBody);
+    setIngameBody(generatedIngameBody);
     setPublishMessage("");
     setPublishError("");
-  }, [event, generatedDiscordBody]);
-
-  const ingame = useMemo(() => {
-    if (!event) return "";
-    return [
-      event.name.toUpperCase(),
-      "",
-      `TIME: ${formatUtc(event.start_at)}`,
-      "",
-      event.description ?? "",
-      event.preparation ? `PREPARE: ${event.preparation}` : "",
-      event.rules ? `RULES: ${event.rules}` : "",
-      "",
-      "Watch kingdom Discord and alliance mail for updates."
-    ].filter(Boolean).join("\n");
-  }, [event]);
+  }, [event, generatedDiscordBody, generatedIngameBody]);
 
   async function copy(name: string, content: string) {
     await navigator.clipboard.writeText(content);
@@ -231,15 +242,33 @@ export function AnnouncementGenerator({ events }: { events: RokEvent[] }) {
           <div className="card-header">
             <div>
               <strong>In-game mail</strong>
-              <div className={`counter ${ingame.length > 2000 ? "over" : ""}`}>
-                {ingame.length} / 2,000 characters
+              <div className={`counter ${ingameBody.length > 2000 ? "over" : ""}`}>
+                {ingameBody.length} / 2,000 characters
               </div>
             </div>
-            <button className="button" type="button" onClick={() => copy("ingame", ingame)}>
+            <button
+              className="button"
+              type="button"
+              disabled={ingameBody.length > 2000}
+              onClick={() => copy("ingame", ingameBody)}
+            >
               <Copy size={15} /> {copied === "ingame" ? "Copied" : "Copy"}
             </button>
           </div>
-          <div className="card-body"><div className="copy-box">{ingame}</div></div>
+          <div className="card-body">
+            <div className="field">
+              <label htmlFor="ingame-body">Editable member announcement</label>
+              <textarea
+                id="ingame-body"
+                value={ingameBody}
+                onChange={(event) => setIngameBody(event.target.value)}
+                style={{ minHeight: 430 }}
+              />
+            </div>
+            <p className="muted" style={{ fontSize: ".76rem", marginBottom: 0 }}>
+              Researched instructions are loaded automatically for supported events. Review and edit leadership details before copying.
+            </p>
+          </div>
         </div>
       </div>
     </>
