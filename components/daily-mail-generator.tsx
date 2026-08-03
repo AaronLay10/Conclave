@@ -35,13 +35,20 @@ function heading(value: string, color: string, size = 27) {
 }
 
 function daysLeftLabel(event: RokEvent, reportStart: Date) {
-  const tomorrow = new Date(reportStart.getTime() + DAY_MS);
-  const fullDaysAfterToday = Math.ceil(
-    (new Date(event.end_at).getTime() - tomorrow.getTime()) / DAY_MS
+  const eventDurationDays = Math.ceil(
+    (new Date(event.end_at).getTime() - new Date(event.start_at).getTime()) / DAY_MS
   );
 
-  return fullDaysAfterToday <= 1
-    ? "1 DAY ONLY"
+  if (eventDurationDays <= 1) return "1 DAY ONLY";
+
+  const tomorrow = new Date(reportStart.getTime() + DAY_MS);
+  const fullDaysAfterToday = Math.max(
+    1,
+    Math.ceil((new Date(event.end_at).getTime() - tomorrow.getTime()) / DAY_MS)
+  );
+
+  return fullDaysAfterToday === 1
+    ? "1 DAY LEFT"
     : `${fullDaysAfterToday} DAYS LEFT`;
 }
 

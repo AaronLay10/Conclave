@@ -16,6 +16,8 @@ Daily-mail summaries should:
 - Include important targets, eligibility requirements, and reset deadlines.
 - Remain short enough to display completely in an in-game mail.
 - Avoid dates for active events; Conclave adds the remaining-time label separately.
+- Use `1 DAY ONLY` only when the event's complete duration is one day.
+- Use `1 DAY LEFT` on the final day of a multi-day event.
 - Avoid strategies that have not been verified in-game or by a reliable current source.
 
 ## Single-event announcement standard
