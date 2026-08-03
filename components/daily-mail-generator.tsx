@@ -14,10 +14,6 @@ const GREEN = "#176B3A";
 const BLUE = "#1E5F8A";
 const ORANGE = "#963F00";
 const BODY_SIZE = 18;
-const MAIL_EVENTS_WITHOUT_CONFIRMATION_MARKERS = new Set([
-  "ceroli crisis",
-  "war forever"
-]);
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -75,11 +71,6 @@ function isPublicWorkflow(event: RokEvent) {
   return ["review", "approved", "published", "active", "completed"].includes(event.status);
 }
 
-function needsMailConfirmation(event: RokEvent) {
-  return event.certainty !== "confirmed"
-    && !MAIL_EVENTS_WITHOUT_CONFIRMATION_MARKERS.has(event.name.trim().toLowerCase());
-}
-
 function activeEventsForDay({
   events,
   reportDate,
@@ -93,18 +84,20 @@ function activeEventsForDay({
   const end = new Date(start.getTime() + DAY_MS);
   return events
     .filter(isPublicWorkflow)
-    .filter((event) => includeTentative || !needsMailConfirmation(event))
+    .filter((event) => includeTentative || event.certainty === "confirmed")
     .filter((event) => new Date(event.start_at) < end && new Date(event.end_at) > start);
 }
 
 function composeMail({
   activeEvents,
   reportDate,
-  summaryOverrides
+  summaryOverrides,
+  schedulingMarkerIds
 }: {
   activeEvents: RokEvent[];
   reportDate: string;
   summaryOverrides: Record<string, string>;
+  schedulingMarkerIds: string[];
 }) {
   const start = utcDay(reportDate);
 
@@ -117,7 +110,7 @@ function composeMail({
   lines.push(heading("ACTIVE EVENTS", GREEN));
   if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
   for (const event of activeEvents) {
-    const marker = needsMailConfirmation(event) ? ` <color=${ORANGE}>*</color>` : "";
+    const marker = schedulingMarkerIds.includes(event.id) ? ` <color=${ORANGE}>*</color>` : "";
     const summary = safeMailText(summaryOverrides[event.id] ?? actionSummary(event));
     lines.push(
       `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
@@ -126,8 +119,8 @@ function composeMail({
     );
   }
 
-  const tentative = activeEvents.filter(needsMailConfirmation);
-  if (tentative.length > 0) {
+  const hasSchedulingMarker = activeEvents.some((event) => schedulingMarkerIds.includes(event.id));
+  if (hasSchedulingMarker) {
     lines.push(`<color=${ORANGE}>* Alliance Leadership will schedule this event.</color>`);
   }
 
@@ -138,6 +131,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
   const [reportDate, setReportDate] = useState(new Date().toISOString().slice(0, 10));
   const [includeTentative, setIncludeTentative] = useState(true);
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
+  const [schedulingMarkerIds, setSchedulingMarkerIds] = useState<string[]>([]);
   const [summaryOverrides, setSummaryOverrides] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
 
@@ -147,8 +141,13 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
   );
   const selectedEvents = activeEvents.filter((event) => !excludedIds.includes(event.id));
   const mail = useMemo(
-    () => composeMail({ activeEvents: selectedEvents, reportDate, summaryOverrides }),
-    [selectedEvents, reportDate, summaryOverrides]
+    () => composeMail({
+      activeEvents: selectedEvents,
+      reportDate,
+      summaryOverrides,
+      schedulingMarkerIds
+    }),
+    [selectedEvents, reportDate, summaryOverrides, schedulingMarkerIds]
   );
 
   async function copyMail() {
@@ -161,6 +160,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
     setReportDate(new Date().toISOString().slice(0, 10));
     setIncludeTentative(true);
     setExcludedIds([]);
+    setSchedulingMarkerIds([]);
     setSummaryOverrides({});
   }
 
@@ -168,6 +168,13 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
     setExcludedIds((current) => selected
       ? current.filter((id) => id !== eventId)
       : [...new Set([...current, eventId])]
+    );
+  }
+
+  function toggleSchedulingMarker(eventId: string, marked: boolean) {
+    setSchedulingMarkerIds((current) => marked
+      ? [...new Set([...current, eventId])]
+      : current.filter((id) => id !== eventId)
     );
   }
 
@@ -219,7 +226,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
             />
             <span>
               <strong>Include tentative calendar windows</strong>
-              <small>They are marked with an asterisk and a confirmation warning.</small>
+              <small>This controls which unconfirmed calendar windows appear. Add scheduling asterisks manually below.</small>
             </span>
           </label>
 
@@ -248,18 +255,31 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
                     </span>
                   </label>
                   {selected && (
-                    <div className="field">
-                      <label htmlFor={`mail-summary-${event.id}`}>Member action summary</label>
-                      <textarea
-                        id={`mail-summary-${event.id}`}
-                        value={summaryOverrides[event.id] ?? actionSummary(event)}
-                        maxLength={500}
-                        onChange={(input) => setSummaryOverrides((current) => ({
-                          ...current,
-                          [event.id]: input.target.value
-                        }))}
-                      />
-                    </div>
+                    <>
+                      <label className="import-replace mail-schedule-marker">
+                        <input
+                          type="checkbox"
+                          checked={schedulingMarkerIds.includes(event.id)}
+                          onChange={(input) => toggleSchedulingMarker(event.id, input.target.checked)}
+                        />
+                        <span>
+                          <strong>Add scheduling asterisk</strong>
+                          <small>Alliance Leadership will schedule this event.</small>
+                        </span>
+                      </label>
+                      <div className="field">
+                        <label htmlFor={`mail-summary-${event.id}`}>Member action summary</label>
+                        <textarea
+                          id={`mail-summary-${event.id}`}
+                          value={summaryOverrides[event.id] ?? actionSummary(event)}
+                          maxLength={500}
+                          onChange={(input) => setSummaryOverrides((current) => ({
+                            ...current,
+                            [event.id]: input.target.value
+                          }))}
+                        />
+                      </div>
+                    </>
                   )}
                 </div>
               );
