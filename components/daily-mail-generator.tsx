@@ -67,25 +67,6 @@ function actionSummary(event: RokEvent) {
   return "Open the in-game event page and follow the listed instructions.";
 }
 
-function wrapMailText(value: string, width = 48) {
-  const words = safeMailText(value).split(/\s+/).filter(Boolean);
-  const lines: string[] = [];
-  let current = "";
-
-  for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (candidate.length <= width || current.length === 0) {
-      current = candidate;
-    } else {
-      lines.push(current);
-      current = word;
-    }
-  }
-
-  if (current) lines.push(current);
-  return lines;
-}
-
 function isPublicWorkflow(event: RokEvent) {
   return ["review", "approved", "published", "active", "completed"].includes(event.status);
 }
@@ -128,11 +109,10 @@ function composeMail({
   if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
   for (const event of activeEvents) {
     const marker = event.certainty === "confirmed" ? "" : ` <color=${ORANGE}>*</color>`;
-    const summaryLines = wrapMailText(summaryOverrides[event.id] ?? actionSummary(event))
-      .map((line) => `<size=${BODY_SIZE}>${line}</size>`);
+    const summary = safeMailText(summaryOverrides[event.id] ?? actionSummary(event));
     lines.push(
       `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
-      ...summaryLines,
+      `<size=${BODY_SIZE}>${summary}</size>`,
       ""
     );
   }
