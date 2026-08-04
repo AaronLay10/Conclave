@@ -1,13 +1,24 @@
 "use client";
 
 import { Shield } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export default function LoginPage() {
   const [error, setError] = useState("");
   const configured = isSupabaseConfigured();
+
+  useEffect(() => {
+    const reason = new URLSearchParams(window.location.search).get("error");
+    if (reason === "not_whitelisted") {
+      setError("This Discord account is not on the Conclave login whitelist.");
+    } else if (reason === "whitelist_check_failed") {
+      setError("Conclave could not verify the Discord login whitelist. Please contact an Event Director.");
+    } else if (reason === "oauth_exchange_failed") {
+      setError("Discord login could not be completed. Please try again.");
+    }
+  }, []);
 
   async function signIn() {
     try {

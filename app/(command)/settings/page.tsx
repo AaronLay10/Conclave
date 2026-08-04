@@ -1,4 +1,5 @@
 import { DiscordConnectionPanel } from "@/components/discord-connection-panel";
+import { DiscordWhitelistPanel } from "@/components/discord-whitelist-panel";
 import { DemoBanner } from "@/components/demo-banner";
 import { getCurrentUser } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -64,6 +65,10 @@ export default async function SettingsPage() {
           </div>
         </div>
       </div>
+
+      <section className="section">
+        <DiscordWhitelistPanel />
+      </section>
 
       <section className="section">
         <DiscordConnectionPanel />

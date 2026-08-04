@@ -30,6 +30,34 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  await supabase.auth.getClaims();
+  const { data: claimsData } = await supabase.auth.getClaims();
+  const isAuthenticated = Boolean(claimsData?.claims?.sub);
+  const isPublicPath =
+    request.nextUrl.pathname === "/login" ||
+    request.nextUrl.pathname.startsWith("/auth/") ||
+    request.nextUrl.pathname === "/api/health";
+
+  if (isAuthenticated && !isPublicPath) {
+    const { data: allowed, error } = await supabase.rpc(
+      "is_discord_login_allowed"
+    );
+    if (error || !allowed) {
+      await supabase.auth.signOut();
+      if (request.nextUrl.pathname.startsWith("/api/")) {
+        const denied = NextResponse.json(
+          { error: "This Discord account is not authorized for Conclave." },
+          { status: 403 }
+        );
+        response.cookies.getAll().forEach((cookie) => denied.cookies.set(cookie));
+        return denied;
+      }
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/login";
+      loginUrl.search = "?error=not_whitelisted";
+      const denied = NextResponse.redirect(loginUrl);
+      response.cookies.getAll().forEach((cookie) => denied.cookies.set(cookie));
+      return denied;
+    }
+  }
   return response;
 }

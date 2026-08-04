@@ -45,6 +45,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
+  const { data: allowed, error: allowlistError } = await supabase.rpc(
+    "is_discord_login_allowed"
+  );
+
+  if (allowlistError || !allowed) {
+    await supabase.auth.signOut();
+    const errorUrl = new URL("/login", origin);
+    errorUrl.searchParams.set(
+      "error",
+      allowlistError ? "whitelist_check_failed" : "not_whitelisted"
+    );
+    response.headers.set("Location", errorUrl.toString());
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
+
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }
