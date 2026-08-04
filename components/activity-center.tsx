@@ -28,6 +28,21 @@ function shortDate(value: string) {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
 }
 
+function utcDateTime(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return `${date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+    timeZone: "UTC"
+  })} UTC`;
+}
+
 export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivitySnapshot | null }) {
   const [query, setQuery] = useState("");
   const [tierFilter, setTierFilter] = useState<"All" | ActivityTier>("All");
@@ -59,6 +74,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
         <div>
           <strong>Alliance members</strong>
           <small>{initialSnapshot ? `${initialSnapshot.alliance_name} [${initialSnapshot.alliance_tag}] · ${shortDate(initialSnapshot.activity_period_start)}–${shortDate(initialSnapshot.activity_period_end)}` : "No activity snapshot is available yet."}</small>
+          {initialSnapshot && <small className="activity-last-updated">Last table update: {utcDateTime(initialSnapshot.created_at)}</small>}
         </div>
         <div className="activity-filters">
           <label className="search-field"><Search size={16} /><input aria-label="Search members" placeholder="Search name or ID" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
@@ -99,7 +115,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
                     <td data-label="Tier"><span className={`activity-tier tier-${member.tier.toLowerCase().replace(" ", "-")}`}>{member.tier}</span></td>
                     <td data-label="Tech">{formatted(member.tech_donations)}</td>
                     <td data-label="Helps">{formatted(member.helps_given)}</td>
-                    <td data-label="Fort / week">{formatted(member.fort_points_per_week, 1)}</td>
+                    <td data-label="Fort / week">{formatted(member.fort_points_per_week)}</td>
                     <td data-label="Building">{formatted(member.building_points)}</td>
                     <td data-label="Resources">{formatted(member.resource_assistance)}</td>
                     <td data-label="Note"><small>{member.data_note ?? "—"}</small></td>

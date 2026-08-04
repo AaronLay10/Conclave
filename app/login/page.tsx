@@ -1,6 +1,6 @@
 "use client";
 
-import { Shield } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
@@ -42,8 +42,14 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="card login-card">
-        <div className="login-emblem"><Shield size={37} /></div>
-        <h1>Conclave</h1>
+        <Image
+          className="login-logo"
+          src="/branding/conclave-login-lockup-dark.png"
+          alt="Conclave"
+          width={1280}
+          height={420}
+          priority
+        />
         <p className="muted">Where alliances plan as one.</p>
         <button className="button primary" style={{ width: "100%", marginTop: 12 }} onClick={signIn} disabled={!configured}>
           Continue with Discord
