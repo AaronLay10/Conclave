@@ -18,7 +18,11 @@
 }
 
 * { box-sizing: border-box; }
-html { color-scheme: dark; }
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 body {
   margin: 0;
   background:
@@ -39,7 +43,7 @@ small, .muted { color: var(--muted); }
 .app-layout {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 248px 1fr;
+  grid-template-columns: 248px minmax(0, 1fr);
 }
 .app-layout.alliance-theme-126v {
   --bg: #130b12;
@@ -97,6 +101,7 @@ small, .muted { color: var(--muted); }
 .admin-theme-conclave .code { background: #101115; }
 .admin-theme-conclave .activity-table thead { background: rgba(17, 18, 22, .72); }
 .sidebar {
+  min-width: 0;
   border-right: 1px solid var(--border);
   background: rgba(9, 15, 24, .92);
   backdrop-filter: blur(14px);
@@ -122,7 +127,7 @@ small, .muted { color: var(--muted); }
 .brand-mark img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .brand strong { display: block; }
 .brand span { font-size: .77rem; color: var(--muted); }
-.nav { display: grid; gap: 5px; }
+.nav { display: grid; gap: 5px; min-width: 0; }
 .nav-link {
   display: flex;
   align-items: center;
@@ -267,6 +272,8 @@ small, .muted { color: var(--muted); }
 label { font-size: .8rem; color: #c8d0da; font-weight: 700; }
 input, select, textarea {
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   background: #0e1723;
   color: var(--text);
   border: 1px solid var(--border);
@@ -330,6 +337,8 @@ textarea { min-height: 110px; resize: vertical; }
   display: flex; justify-content: space-between; align-items: center;
   padding: 14px; border-bottom: 1px solid var(--border);
 }
+.calendar-timezone-note { font-size: .75rem; }
+.calendar-day-overflow { margin-top: 5px; font-size: .68rem; }
 .calendar-weekdays, .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -355,6 +364,7 @@ textarea { min-height: 110px; resize: vertical; }
   display: flex; justify-content: space-between; align-items: center;
   font-size: .78rem; color: var(--muted); margin-bottom: 6px;
 }
+.calendar-date-full, .calendar-month-empty { display: none; }
 .calendar-date.today span:first-child {
   width: 25px; height: 25px; display: grid; place-items: center;
   color: #171209; background: var(--gold); border-radius: 50%; font-weight: 800;
@@ -442,7 +452,7 @@ textarea { min-height: 110px; resize: vertical; }
 .status-dot.warn { background: var(--gold); }
 
 .activity-layout { grid-template-columns: minmax(0, 1.45fr) minmax(300px, .75fr); }
-.date-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.date-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 9px; }
 .model-list { display: grid; }
 .model-row {
   display: flex;
@@ -578,22 +588,53 @@ textarea { min-height: 110px; resize: vertical; }
   .alliance-dashboard-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
-  .app-layout { grid-template-columns: 1fr; }
+  .app-layout { grid-template-columns: minmax(0, 1fr); }
   .sidebar {
     height: auto; position: static; border-right: 0; border-bottom: 1px solid var(--border);
     padding: 12px;
   }
   .brand { padding-bottom: 12px; }
-  .nav { display: flex; overflow-x: auto; }
-  .nav-link { white-space: nowrap; }
+  .nav {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-link { flex: 0 0 auto; white-space: nowrap; }
   .sidebar-footer { display: none; }
   .topbar { padding: 10px 16px; }
   .content { padding: 18px 14px; }
+  .badge, .activity-tier { font-size: .78rem; }
+  .brand span, .topbar-identity small, .stat-label, .stat-meta, .event-meta,
+  .counter, .activity-filter-summary, .alliance-quick-card span,
+  .portal-preview-banner span, .activity-period-summary span,
+  .tier-pulse-list > div, .demo-banner, label { font-size: .85rem; }
   .page-header { flex-direction: column; }
   .grid.cols-4, .grid.cols-2 { grid-template-columns: 1fr; }
   .form-grid { grid-template-columns: 1fr; }
-  .calendar-day { min-height: 95px; padding: 5px; }
-  .calendar-event { font-size: .62rem; }
+  input, select, textarea { font-size: 1rem; }
+  .calendar-weekdays { display: none; }
+  .calendar-grid { grid-template-columns: 1fr; }
+  .calendar-day { min-height: 0; padding: 13px 14px; border-right: 0; }
+  .calendar-day.empty-day { display: none; }
+  .calendar-day.outside { opacity: .7; }
+  .calendar-date { margin-bottom: 0; }
+  .calendar-date span:first-child { display: none; }
+  .calendar-date.today span:first-child { display: none; }
+  .calendar-date-full { display: block; color: var(--text); font-size: .95rem; font-weight: 750; }
+  .calendar-date.today .calendar-date-full { color: var(--gold-soft); }
+  .calendar-event {
+    margin-top: 9px;
+    padding: 10px 11px;
+    font-size: .92rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .calendar-month-empty { display: block; }
+  .calendar-timezone-note, .calendar-day-overflow { font-size: .82rem; }
+  .calendar-legend { font-size: .84rem; }
   .event-row { grid-template-columns: 1fr; }
   .detail-list { grid-template-columns: 1fr; gap: 4px; }
   .daily-mail-layout { grid-template-columns: 1fr; }
@@ -625,7 +666,7 @@ textarea { min-height: 110px; resize: vertical; }
   .activity-table tr { display: block; overflow: hidden; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); }
   .activity-table td { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 13px; border-top: 1px solid var(--border); white-space: normal; text-align: right; }
   .activity-table td:first-child { border-top: 0; }
-  .activity-table td::before { content: attr(data-label); color: var(--muted); font-size: .69rem; font-weight: 760; letter-spacing: .04em; text-transform: uppercase; text-align: left; }
+  .activity-table td::before { content: attr(data-label); color: var(--muted); font-size: .78rem; font-weight: 760; letter-spacing: .04em; text-transform: uppercase; text-align: left; }
   .activity-table td strong, .activity-table td small { text-align: right; }
   .activity-table .score-cell > span { display: none; }
   .activity-table .activity-empty-row td { display: block; padding: 0; }
