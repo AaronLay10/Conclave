@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity,
+  ArrowDown,
+  ArrowUp,
   CheckCircle2,
   FileSpreadsheet,
   Search,
@@ -21,6 +23,19 @@ import {
 import type { ActivityMemberScore, ActivitySnapshot, ActivityTier } from "@/lib/types";
 
 const tiers: ActivityTier[] = ["Exceptional", "Strong", "Active", "Light", "At Risk"];
+type SortKey = "rank" | "governor_name" | "activity_score" | "tech_donations" | "helps_given" | "fort_points_per_week" | "building_points" | "resource_assistance";
+type AttentionFilter = "All" | "Needs attention" | "No recorded activity";
+
+const sortLabels: Record<SortKey, string> = {
+  rank: "Rank",
+  governor_name: "Governor name",
+  activity_score: "Activity score",
+  tech_donations: "Tech donations",
+  helps_given: "Helps given",
+  fort_points_per_week: "Fort points / week",
+  building_points: "Building points",
+  resource_assistance: "Resource assistance"
+};
 
 function formatted(value: number, digits = 0) {
   return value.toLocaleString(undefined, { maximumFractionDigits: digits });
@@ -49,7 +64,7 @@ function scoreSummary(members: ActivityMemberScore[]) {
   };
 }
 
-export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivitySnapshot | null }) {
+export function ActivityCenter({ initialSnapshot, canImport }: { initialSnapshot: ActivitySnapshot | null; canImport: boolean }) {
   const router = useRouter();
   const [activityRows, setActivityRows] = useState<ActivitySourceRow[] | null>(null);
   const [fortRows, setFortRows] = useState<FortSourceRow[] | null>(null);
@@ -63,6 +78,9 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
   const [replaceExisting, setReplaceExisting] = useState(false);
   const [query, setQuery] = useState("");
   const [tierFilter, setTierFilter] = useState<"All" | ActivityTier>("All");
+  const [attentionFilter, setAttentionFilter] = useState<AttentionFilter>("All");
+  const [sortKey, setSortKey] = useState<SortKey>("rank");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -75,12 +93,28 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
     if (!activityRows || !fortRows) return null;
     return calculateActivityScores(activityRows, fortRows, scoreConfig);
   }, [activityRows, fortRows, scoreConfig]);
-  const members = previewMembers ?? initialSnapshot?.members ?? [];
+  const members = useMemo(
+    () => previewMembers ?? initialSnapshot?.members ?? [],
+    [initialSnapshot?.members, previewMembers]
+  );
   const summary = scoreSummary(members);
-  const filteredMembers = members.filter((member) => {
-    const matchesQuery = `${member.governor_name} ${member.governor_id}`.toLowerCase().includes(query.toLowerCase().trim());
-    return matchesQuery && (tierFilter === "All" || member.tier === tierFilter);
-  });
+  const filteredMembers = useMemo(() => members
+    .filter((member) => {
+      const matchesQuery = `${member.governor_name} ${member.governor_id}`.toLowerCase().includes(query.toLowerCase().trim());
+      const matchesTier = tierFilter === "All" || member.tier === tierFilter;
+      const matchesAttention = attentionFilter === "All"
+        || (attentionFilter === "Needs attention" && ["Light", "At Risk"].includes(member.tier))
+        || (attentionFilter === "No recorded activity" && Boolean(member.data_note));
+      return matchesQuery && matchesTier && matchesAttention;
+    })
+    .sort((left, right) => {
+      const leftValue = left[sortKey];
+      const rightValue = right[sortKey];
+      const comparison = typeof leftValue === "string"
+        ? leftValue.localeCompare(String(rightValue), undefined, { sensitivity: "base" })
+        : Number(leftValue) - Number(rightValue);
+      return sortDirection === "asc" ? comparison : -comparison;
+    }), [attentionFilter, members, query, sortDirection, sortKey, tierFilter]);
 
   async function loadActivity(file?: File) {
     if (!file) return;
@@ -167,7 +201,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
         </div>
       </div>
 
-      <section className="section grid activity-layout">
+      {canImport && <section className="section grid activity-layout">
         <div className="card">
           <div className="card-header">
             <div className="row"><Upload size={18} /><strong>Hero Scrolls import</strong></div>
@@ -249,12 +283,12 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
             Scores cap each category at its target. Fort totals are normalized across {formatted(scoreConfig.fortWeeks, 2)} weeks for the selected period, so the final score is 70% weekly contribution behavior and 30% sustained fort activity.
           </div>
         </div>
-      </section>
+      </section>}
 
       <section className="section card">
         <div className="card-header activity-table-header">
           <div>
-            <strong>{previewMembers ? "Import preview" : "Latest activity snapshot"}</strong>
+            <strong>{previewMembers ? "Import preview" : "Alliance activity dashboard"}</strong>
             <small>
               {previewMembers
                 ? `${activityFileName} + ${fortFileName}`
@@ -269,16 +303,36 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
               <option value="All">All tiers</option>
               {tiers.map((tier) => <option key={tier}>{tier}</option>)}
             </select>
+            <select aria-label="Filter members needing attention" value={attentionFilter} onChange={(event) => setAttentionFilter(event.target.value as AttentionFilter)}>
+              <option value="All">All activity levels</option>
+              <option value="Needs attention">Needs attention</option>
+              <option value="No recorded activity">No recorded activity</option>
+            </select>
+            <select aria-label="Sort activity members" value={sortKey} onChange={(event) => setSortKey(event.target.value as SortKey)}>
+              {Object.entries(sortLabels).map(([value, label]) => <option key={value} value={value}>Sort: {label}</option>)}
+            </select>
+            <button
+              className="icon-button"
+              aria-label={`Sort ${sortDirection === "asc" ? "descending" : "ascending"}`}
+              title={`Currently ${sortDirection === "asc" ? "ascending" : "descending"}`}
+              onClick={() => setSortDirection((direction) => direction === "asc" ? "desc" : "asc")}
+            >
+              {sortDirection === "asc" ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+            </button>
           </div>
         </div>
         {members.length === 0 ? (
-          <div className="empty"><FileSpreadsheet size={34} /><p>Choose the Week Activity and Forts CSV files above.</p></div>
+          <div className="empty"><FileSpreadsheet size={34} /><p>{canImport ? "Choose the Week Activity and Forts CSV files above." : "No activity snapshot is available for your alliance yet."}</p></div>
         ) : (
-          <div className="activity-table-wrap">
+          <div>
+            <div className="activity-filter-summary">Showing {filteredMembers.length} of {members.length} members</div>
+            <div className="activity-table-wrap">
             <table className="activity-table">
               <thead><tr><th>Rank</th><th>Governor</th><th>Score</th><th>Tier</th><th>Tech</th><th>Helps</th><th>Fort / wk</th><th>Building</th><th>Resources</th><th>Note</th></tr></thead>
               <tbody>
-                {filteredMembers.map((member) => (
+                {filteredMembers.length === 0 ? (
+                  <tr><td colSpan={10}><div className="empty">No members match these filters.</div></td></tr>
+                ) : filteredMembers.map((member) => (
                   <tr key={member.governor_id}>
                     <td className="rank-cell">#{member.rank}</td>
                     <td><strong>{member.governor_name}</strong><small>{member.governor_id}</small></td>
@@ -294,6 +348,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </section>

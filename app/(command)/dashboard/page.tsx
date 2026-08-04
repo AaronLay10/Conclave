@@ -3,11 +3,11 @@ import { AlertTriangle, ArrowRight, Plus } from "lucide-react";
 import { DemoBanner } from "@/components/demo-banner";
 import { EventCard } from "@/components/event-card";
 import { StatCard } from "@/components/stat-card";
-import { getEvents } from "@/lib/data";
+import { getCurrentMembership, getEvents } from "@/lib/data";
 import { eventIsActive, eventIsUpcoming, timeUntil } from "@/lib/utils";
 
 export default async function DashboardPage() {
-  const events = await getEvents();
+  const [events, membership] = await Promise.all([getEvents(), getCurrentMembership()]);
   const now = new Date();
   const active = events.filter((event) => eventIsActive(event, now));
   const upcoming = events.filter((event) => eventIsUpcoming(event, now));
@@ -32,7 +32,7 @@ export default async function DashboardPage() {
         </div>
         <div className="actions">
           <Link className="button" href="/calendar">Open calendar</Link>
-          <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>
+          {membership?.role === "event_director" && <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>}
         </div>
       </div>
 

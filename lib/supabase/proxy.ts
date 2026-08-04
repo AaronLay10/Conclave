@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { canAccessPage, isAppRole } from "@/lib/access-control";
 
 export async function updateSession(request: NextRequest) {
   if (!isSupabaseConfigured()) {
@@ -43,6 +44,8 @@ export async function updateSession(request: NextRequest) {
 
   const isPublicPath =
     request.nextUrl.pathname === "/login" ||
+    request.nextUrl.pathname === "/access-denied" ||
+    request.nextUrl.pathname === "/manifest.webmanifest" ||
     request.nextUrl.pathname.startsWith("/auth/") ||
     request.nextUrl.pathname === "/api/health";
 
@@ -66,6 +69,20 @@ export async function updateSession(request: NextRequest) {
       const denied = NextResponse.redirect(loginUrl);
       response.cookies.getAll().forEach((cookie) => denied.cookies.set(cookie));
       return denied;
+    }
+
+    if (!request.nextUrl.pathname.startsWith("/api/")) {
+      const { data: role, error: accessError } = await supabase.rpc(
+        "provision_current_user_access"
+      );
+      if (accessError || !isAppRole(role) || !canAccessPage(role, request.nextUrl.pathname)) {
+        const deniedUrl = request.nextUrl.clone();
+        deniedUrl.pathname = "/access-denied";
+        deniedUrl.search = "";
+        const denied = NextResponse.redirect(deniedUrl);
+        response.cookies.getAll().forEach((cookie) => denied.cookies.set(cookie));
+        return denied;
+      }
     }
   }
   return response;

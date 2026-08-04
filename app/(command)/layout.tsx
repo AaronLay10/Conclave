@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell";
-import { getCurrentUser } from "@/lib/data";
+import { getCurrentMembership, getCurrentUser } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 
 export default async function CommandLayout({
@@ -8,7 +8,7 @@ export default async function CommandLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getCurrentUser();
+  const [user, membership] = await Promise.all([getCurrentUser(), getCurrentMembership()]);
 
   if (isSupabaseConfigured() && !user) {
     redirect("/login");
@@ -21,5 +21,5 @@ export default async function CommandLayout({
       ? metadataName
       : user?.email?.split("@")[0] ?? "Event Director";
 
-  return <AppShell userName={userName}>{children}</AppShell>;
+  return <AppShell userName={userName} role={membership?.role ?? "viewer"}>{children}</AppShell>;
 }
