@@ -77,7 +77,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
           {initialSnapshot && <small className="activity-last-updated">Last table update: {utcDateTime(initialSnapshot.created_at)}</small>}
         </div>
         <div className="activity-filters">
-          <label className="search-field"><Search size={16} /><input aria-label="Search members" placeholder="Search name or ID" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+          <label className="search-field"><Search size={18} /><input aria-label="Search members" placeholder="Search name or ID" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
           <select aria-label="Filter activity tier" value={tierFilter} onChange={(event) => setTierFilter(event.target.value as "All" | ActivityTier)}>
             <option value="All">All tiers</option>
             {tiers.map((tier) => <option key={tier}>{tier}</option>)}
@@ -91,7 +91,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
             {Object.entries(sortLabels).map(([value, label]) => <option key={value} value={value}>Sort: {label}</option>)}
           </select>
           <button className="icon-button" aria-label={`Sort ${sortDirection === "asc" ? "descending" : "ascending"}`} title={`Currently ${sortDirection === "asc" ? "ascending" : "descending"}`} onClick={() => setSortDirection((direction) => direction === "asc" ? "desc" : "asc")}>
-            {sortDirection === "asc" ? <ArrowUp size={16} /> : <ArrowDown size={16} />}
+            {sortDirection === "asc" ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
           </button>
         </div>
       </div>
@@ -132,15 +132,56 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
         .mobile-activity-columns { display: none; }
 
         @media (max-width: 760px) {
+          .activity-member-report > .card-header {
+            padding: 18px 16px;
+          }
+
+          .activity-member-report > .card-header strong {
+            font-size: 1.1rem;
+          }
+
+          .activity-member-report > .card-header small {
+            display: block;
+            margin-top: 5px;
+            font-size: .82rem;
+            line-height: 1.35;
+          }
+
+          .activity-member-report .activity-filters {
+            gap: 10px;
+          }
+
+          .activity-member-report .search-field,
+          .activity-member-report .activity-filters select {
+            min-height: 48px;
+            font-size: 16px;
+          }
+
+          .activity-member-report .search-field input {
+            min-height: 44px;
+            padding: 12px 10px;
+            font-size: 16px;
+          }
+
+          .activity-member-report .activity-filters .icon-button {
+            width: 48px;
+            height: 48px;
+          }
+
+          .activity-filter-summary {
+            padding: 12px 14px;
+            font-size: .92rem;
+          }
+
           .mobile-activity-columns {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 58px minmax(82px, auto);
-            gap: 10px;
-            padding: 12px 13px 3px;
+            grid-template-columns: minmax(0, 1fr) 64px minmax(96px, auto);
+            gap: 12px;
+            padding: 14px 14px 7px;
             color: var(--muted);
-            font-size: .67rem;
-            font-weight: 780;
-            letter-spacing: .05em;
+            font-size: .78rem;
+            font-weight: 800;
+            letter-spacing: .045em;
             text-transform: uppercase;
           }
 
@@ -148,16 +189,17 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
           .mobile-activity-columns span:nth-child(3) { text-align: right; }
 
           .activity-member-report .activity-table tbody {
-            gap: 7px;
+            gap: 8px;
             margin-top: 5px;
           }
 
           .activity-member-report .activity-table tr:not(.activity-empty-row) {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 58px minmax(82px, auto);
+            grid-template-columns: minmax(0, 1fr) 64px minmax(96px, auto);
             align-items: center;
-            gap: 10px;
-            padding: 11px 13px;
+            gap: 12px;
+            min-height: 56px;
+            padding: 13px 14px;
           }
 
           .activity-member-report .activity-table tr:not(.activity-empty-row) td {
@@ -185,6 +227,8 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
           .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(2) strong {
             overflow: hidden;
             max-width: 100%;
+            font-size: 1rem;
+            line-height: 1.25;
             text-overflow: ellipsis;
             white-space: nowrap;
             text-align: left;
@@ -198,8 +242,16 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
             text-align: right;
           }
 
-          .activity-member-report .activity-table .score-cell strong { font-size: .95rem; }
-          .activity-member-report .activity-table .activity-tier { white-space: nowrap; }
+          .activity-member-report .activity-table .score-cell strong {
+            font-size: 1rem;
+            line-height: 1;
+          }
+
+          .activity-member-report .activity-table .activity-tier {
+            padding: 5px 8px;
+            font-size: .72rem;
+            white-space: nowrap;
+          }
         }
       `}</style>
     </section>
