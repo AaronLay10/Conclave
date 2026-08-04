@@ -1,14 +1,20 @@
-export type AppRole = "event_director" | "council" | "alliance_lead" | "viewer";
+export type AppRole = "event_director" | "council" | "alliance_lead" | "alliance_r4" | "alliance_r5" | "viewer";
 
 export const roleLabels: Record<AppRole, string> = {
   event_director: "Event Director",
   council: "Kingdom Council",
   alliance_lead: "Alliance Leadership",
+  alliance_r4: "Alliance R4",
+  alliance_r5: "Alliance R5",
   viewer: "Viewer"
 };
 
-const allRoles: AppRole[] = ["event_director", "council", "alliance_lead", "viewer"];
-const leadershipRoles: AppRole[] = ["event_director", "council", "alliance_lead"];
+const allRoles: AppRole[] = ["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5", "viewer"];
+const leadershipRoles: AppRole[] = ["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5"];
+
+export function isAllianceLeadershipRole(role: AppRole) {
+  return role === "alliance_lead" || role === "alliance_r4" || role === "alliance_r5";
+}
 
 const pageRules: Array<{ matches: (pathname: string) => boolean; roles: AppRole[] }> = [
   { matches: (path) => path === "/settings" || path.startsWith("/settings/"), roles: ["event_director"] },

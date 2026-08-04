@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { KeyRound, Plus, RefreshCw, ShieldCheck, Trash2 } from "lucide-react";
-import { roleLabels, type AppRole } from "@/lib/access-control";
+import { isAllianceLeadershipRole, roleLabels, type AppRole } from "@/lib/access-control";
 
 type AllianceOption = { id: string; name: string; tag: string };
 
@@ -73,7 +73,7 @@ export function DiscordWhitelistPanel() {
         display_name: displayName,
         note,
         access_role: accessRole,
-        alliance_id: accessRole === "alliance_lead" ? allianceId : null
+        alliance_id: isAllianceLeadershipRole(accessRole) ? allianceId : null
       });
       setDiscordId("");
       setDisplayName("");
@@ -121,7 +121,7 @@ export function DiscordWhitelistPanel() {
         display_name: entry.display_name ?? "",
         note: entry.note ?? "",
         access_role: role,
-        alliance_id: role === "alliance_lead" ? selectedAllianceId : null,
+        alliance_id: isAllianceLeadershipRole(role) ? selectedAllianceId : null,
         is_active: entry.is_active
       });
       setResult(`${entry.display_name || entry.discord_user_id} now has ${roleLabels[role]} access.`);
@@ -180,16 +180,17 @@ export function DiscordWhitelistPanel() {
             <select id="whitelist-role" value={accessRole} onChange={(event) => {
               const role = event.target.value as AppRole;
               setAccessRole(role);
-              if (role !== "alliance_lead") setAllianceId("");
+              if (!isAllianceLeadershipRole(role)) setAllianceId("");
             }}>
               <option value="viewer">Viewer</option>
-              <option value="alliance_lead">Alliance Leadership</option>
+              <option value="alliance_r4">Alliance R4</option>
+              <option value="alliance_r5">Alliance R5</option>
               <option value="council">Kingdom Council</option>
               <option value="event_director">Event Director</option>
             </select>
-            <small>Alliance Leadership receives the activity dashboard without import controls.</small>
+            <small>Alliance R4 and R5 receive their alliance activity dashboard without import controls.</small>
           </div>
-          {accessRole === "alliance_lead" && (
+          {isAllianceLeadershipRole(accessRole) && (
             <div className="field">
               <label htmlFor="whitelist-alliance">Alliance</label>
               <select id="whitelist-alliance" value={allianceId} onChange={(event) => setAllianceId(event.target.value)}>
@@ -203,7 +204,7 @@ export function DiscordWhitelistPanel() {
             <input id="whitelist-note" placeholder="Role or reason for access" value={note} onChange={(event) => setNote(event.target.value)} />
           </div>
         </div>
-        <button className="button primary" onClick={addEntry} disabled={saving || discordId.trim().length < 5 || (accessRole === "alliance_lead" && !allianceId)}>
+        <button className="button primary" onClick={addEntry} disabled={saving || discordId.trim().length < 5 || (isAllianceLeadershipRole(accessRole) && !allianceId)}>
           <Plus size={17} /> {saving ? "Saving…" : "Add Discord user"}
         </button>
         {currentDiscordId && <small>Your protected Discord User ID: <span className="code">{currentDiscordId}</span></small>}
@@ -235,16 +236,18 @@ export function DiscordWhitelistPanel() {
                       disabled={saving || isCurrentUser}
                       onChange={(event) => {
                         const role = event.target.value as AppRole;
-                        const scopedAlliance = role === "alliance_lead" ? entry.alliance_id ?? alliances[0]?.id ?? null : null;
+                        const scopedAlliance = isAllianceLeadershipRole(role) ? entry.alliance_id ?? alliances[0]?.id ?? null : null;
                         void updateAccess(entry, role, scopedAlliance);
                       }}
                     >
                       <option value="viewer">Viewer</option>
-                      <option value="alliance_lead">Alliance Leadership</option>
+                      {entry.access_role === "alliance_lead" && <option value="alliance_lead">Alliance Leadership (legacy)</option>}
+                      <option value="alliance_r4">Alliance R4</option>
+                      <option value="alliance_r5">Alliance R5</option>
                       <option value="council">Kingdom Council</option>
                       <option value="event_director">Event Director</option>
                     </select>
-                    {entry.access_role === "alliance_lead" && (
+                    {isAllianceLeadershipRole(entry.access_role) && (
                       <select
                         aria-label={`Alliance for ${entry.display_name || entry.discord_user_id}`}
                         value={entry.alliance_id ?? ""}
