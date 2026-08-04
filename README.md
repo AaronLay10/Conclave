@@ -133,7 +133,7 @@ enforces page access both in navigation and on direct URLs:
 
 - **Event Director:** every page, including Settings, imports, and predictions
 - **Kingdom Council:** dashboards, calendar, events, templates, announcements, and activity
-- **Alliance Leadership:** dashboards, calendar, events, announcements, and its own alliance activity
+- **Alliance R4 / R5:** dashboards, calendar, events, announcements, and their own alliance activity
 - **Viewer:** dashboard, calendar, and published/allowed events
 
 ## Discord OAuth setup

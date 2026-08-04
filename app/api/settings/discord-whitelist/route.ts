@@ -2,9 +2,10 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import { isAllianceLeadershipRole, type AppRole } from "@/lib/access-control";
 
 const discordId = z.string().regex(/^\d{5,30}$/, "Enter a numeric Discord User ID.");
-const accessRole = z.enum(["event_director", "council", "alliance_lead", "viewer"]);
+const accessRole = z.enum(["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5", "viewer"]);
 const accessSchema = z.object({
   discord_user_id: discordId,
   display_name: z.string().trim().max(120).optional(),
@@ -12,11 +13,11 @@ const accessSchema = z.object({
   access_role: accessRole,
   alliance_id: z.uuid().nullable().optional()
 }).superRefine((value, context) => {
-  if (value.access_role === "alliance_lead" && !value.alliance_id) {
-    context.addIssue({ code: "custom", path: ["alliance_id"], message: "Choose an alliance for Alliance Leadership." });
+  if (isAllianceLeadershipRole(value.access_role as AppRole) && !value.alliance_id) {
+    context.addIssue({ code: "custom", path: ["alliance_id"], message: "Choose an alliance for this alliance role." });
   }
-  if (value.access_role !== "alliance_lead" && value.alliance_id) {
-    context.addIssue({ code: "custom", path: ["alliance_id"], message: "Alliance scope is only available to Alliance Leadership." });
+  if (!isAllianceLeadershipRole(value.access_role as AppRole) && value.alliance_id) {
+    context.addIssue({ code: "custom", path: ["alliance_id"], message: "Alliance scope is only available to alliance leadership roles." });
   }
 });
 const addSchema = accessSchema;
@@ -127,7 +128,7 @@ export async function POST(request: Request) {
       note: optional(parsed.data.note),
       access_role: parsed.data.access_role,
       kingdom_id: context.membership.kingdom_id,
-      alliance_id: parsed.data.access_role === "alliance_lead" ? parsed.data.alliance_id : null,
+      alliance_id: isAllianceLeadershipRole(parsed.data.access_role as AppRole) ? parsed.data.alliance_id : null,
       is_active: true,
       created_by: context.user.id
     }, { onConflict: "discord_user_id" });
@@ -156,7 +157,7 @@ export async function PATCH(request: Request) {
       display_name: optional(parsed.data.display_name),
       note: optional(parsed.data.note),
       access_role: parsed.data.access_role,
-      alliance_id: parsed.data.access_role === "alliance_lead" ? parsed.data.alliance_id : null,
+      alliance_id: isAllianceLeadershipRole(parsed.data.access_role as AppRole) ? parsed.data.alliance_id : null,
       is_active: parsed.data.is_active
     })
     .eq("discord_user_id", parsed.data.discord_user_id);

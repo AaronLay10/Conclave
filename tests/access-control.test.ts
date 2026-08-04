@@ -5,7 +5,7 @@ import { canAccessPage, type AppRole } from "../lib/access-control.ts";
 const commonPages = ["/dashboard", "/calendar", "/events", "/events/event-id"];
 
 test("all authenticated roles can open member-facing pages", () => {
-  const roles: AppRole[] = ["event_director", "council", "alliance_lead", "viewer"];
+  const roles: AppRole[] = ["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5", "viewer"];
   roles.forEach((role) => commonPages.forEach((page) => assert.equal(canAccessPage(role, page), true)));
 });
 
@@ -13,6 +13,8 @@ test("only leadership roles can open Alliance Activity", () => {
   assert.equal(canAccessPage("event_director", "/activity"), true);
   assert.equal(canAccessPage("council", "/activity"), true);
   assert.equal(canAccessPage("alliance_lead", "/activity"), true);
+  assert.equal(canAccessPage("alliance_r4", "/activity"), true);
+  assert.equal(canAccessPage("alliance_r5", "/activity"), true);
   assert.equal(canAccessPage("viewer", "/activity"), false);
 });
 
@@ -22,6 +24,8 @@ test("Event Director-only operational pages stay restricted", () => {
     assert.equal(canAccessPage("event_director", page), true);
     assert.equal(canAccessPage("council", page), false);
     assert.equal(canAccessPage("alliance_lead", page), false);
+    assert.equal(canAccessPage("alliance_r4", page), false);
+    assert.equal(canAccessPage("alliance_r5", page), false);
     assert.equal(canAccessPage("viewer", page), false);
   });
 });
