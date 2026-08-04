@@ -101,6 +101,7 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
       ) : (
         <div>
           <div className="activity-filter-summary">Showing {filteredMembers.length} of {members.length} members</div>
+          <div className="mobile-activity-columns" aria-hidden="true"><span>Name</span><span>Score</span><span>Tier</span></div>
           <div className="activity-table-wrap">
             <table className="activity-table">
               <thead><tr><th>Rank</th><th>Governor</th><th>Score</th><th>Tier</th><th>Tech</th><th>Helps</th><th>Fort / wk</th><th>Building</th><th>Resources</th><th>Note</th></tr></thead>
@@ -126,6 +127,81 @@ export function ActivityCenter({ initialSnapshot }: { initialSnapshot: ActivityS
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        .mobile-activity-columns { display: none; }
+
+        @media (max-width: 760px) {
+          .mobile-activity-columns {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 58px minmax(82px, auto);
+            gap: 10px;
+            padding: 12px 13px 3px;
+            color: var(--muted);
+            font-size: .67rem;
+            font-weight: 780;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+          }
+
+          .mobile-activity-columns span:nth-child(2),
+          .mobile-activity-columns span:nth-child(3) { text-align: right; }
+
+          .activity-member-report .activity-table tbody {
+            gap: 7px;
+            margin-top: 5px;
+          }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 58px minmax(82px, auto);
+            align-items: center;
+            gap: 10px;
+            padding: 11px 13px;
+          }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td {
+            display: none;
+            min-width: 0;
+            padding: 0;
+            border: 0;
+          }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(2),
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(3),
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(4) {
+            display: flex;
+          }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td::before { content: none; }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(2) {
+            align-items: flex-start;
+            justify-content: center;
+            flex-direction: column;
+            text-align: left;
+          }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(2) strong {
+            overflow: hidden;
+            max-width: 100%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: left;
+          }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(2) small { display: none; }
+
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(3),
+          .activity-member-report .activity-table tr:not(.activity-empty-row) td:nth-child(4) {
+            justify-content: flex-end;
+            text-align: right;
+          }
+
+          .activity-member-report .activity-table .score-cell strong { font-size: .95rem; }
+          .activity-member-report .activity-table .activity-tier { white-space: nowrap; }
+        }
+      `}</style>
     </section>
   );
 }
