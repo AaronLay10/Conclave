@@ -85,6 +85,7 @@ export async function getLatestActivitySnapshot(): Promise<ActivitySnapshot | nu
 
   return {
     id: activityImport.id,
+    alliance_id: activityImport.alliance_id,
     alliance_tag: alliance?.tag ?? "",
     alliance_name: alliance?.name ?? "Alliance",
     activity_period_start: activityImport.activity_period_start,

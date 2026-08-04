@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, Plus } from "lucide-react";
+import { AlertTriangle, ArrowRight, Eye, Plus } from "lucide-react";
 import { DemoBanner } from "@/components/demo-banner";
 import { EventCard } from "@/components/event-card";
 import { StatCard } from "@/components/stat-card";
@@ -8,19 +8,32 @@ import { getCurrentMembership, getEvents, getLatestActivitySnapshot } from "@/li
 import { isAllianceLeadershipRole } from "@/lib/access-control";
 import { eventIsActive, eventIsUpcoming, timeUntil } from "@/lib/utils";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams
+}: {
+  searchParams: Promise<{ preview?: string }>;
+}) {
   const [events, membership] = await Promise.all([getEvents(), getCurrentMembership()]);
-  if (membership && isAllianceLeadershipRole(membership.role)) {
+  const query = await searchParams;
+  const isAlliancePreview = membership?.role === "event_director" && query.preview === "alliance";
+  if (membership && (isAllianceLeadershipRole(membership.role) || isAlliancePreview)) {
     const activity = await getLatestActivitySnapshot();
+    const leadershipEvents = isAlliancePreview
+      ? events.filter((event) =>
+          ["approved", "published", "active", "completed", "archived"].includes(event.status)
+          || (activity?.alliance_id && event.scope === "alliance" && event.alliance_id === activity.alliance_id)
+        )
+      : events;
     return (
       <>
         <DemoBanner />
         <AllianceCommandCenter
           allianceName={membership.alliance_name ?? activity?.alliance_name ?? "Alliance"}
           allianceTag={membership.alliance_tag ?? activity?.alliance_tag ?? "—"}
-          role={membership.role}
-          events={events}
+          role={isAlliancePreview ? "alliance_r5" : membership.role}
+          events={leadershipEvents}
           activity={activity}
+          isPreview={isAlliancePreview}
         />
       </>
     );
@@ -48,6 +61,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="actions">
+          {membership?.role === "event_director" && <Link className="button" href="/dashboard?preview=alliance"><Eye size={17} /> Preview Alliance Portal</Link>}
           <Link className="button" href="/calendar">Open calendar</Link>
           {membership?.role === "event_director" && <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>}
         </div>
