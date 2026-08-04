@@ -1,7 +1,7 @@
 import { demoAnnouncements, demoEvents, demoTemplates } from "@/lib/demo-data";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
-import type { Announcement, EventTemplate, RokEvent } from "@/lib/types";
+import type { ActivityMemberScore, ActivityScoreConfig, ActivitySnapshot, Announcement, EventTemplate, RokEvent } from "@/lib/types";
 
 export async function getEvents(): Promise<RokEvent[]> {
   if (!isSupabaseConfigured()) return demoEvents;
@@ -57,6 +57,45 @@ export async function getAnnouncements(): Promise<Announcement[]> {
 
   if (error) throw new Error(`Unable to load announcements: ${error.message}`);
   return (data ?? []) as Announcement[];
+}
+
+export async function getLatestActivitySnapshot(): Promise<ActivitySnapshot | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const supabase = await createClient();
+  const { data: activityImport, error: importError } = await supabase
+    .from("activity_imports")
+    .select("*, alliances(name, tag)")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (importError) throw new Error(`Unable to load activity: ${importError.message}`);
+  if (!activityImport) return null;
+
+  const { data: members, error: membersError } = await supabase
+    .from("activity_member_scores")
+    .select("*")
+    .eq("import_id", activityImport.id)
+    .order("rank", { ascending: true });
+
+  if (membersError) throw new Error(`Unable to load activity scores: ${membersError.message}`);
+  const alliance = activityImport.alliances as unknown as { name: string; tag: string } | null;
+
+  return {
+    id: activityImport.id,
+    alliance_tag: alliance?.tag ?? "",
+    alliance_name: alliance?.name ?? "Alliance",
+    activity_period_start: activityImport.activity_period_start,
+    activity_period_end: activityImport.activity_period_end,
+    fort_period_start: activityImport.fort_period_start,
+    fort_period_end: activityImport.fort_period_end,
+    activity_source_name: activityImport.activity_source_name,
+    fort_source_name: activityImport.fort_source_name,
+    score_config: activityImport.score_config as ActivityScoreConfig,
+    created_at: activityImport.created_at,
+    members: (members ?? []) as ActivityMemberScore[]
+  };
 }
 
 export async function getCurrentUser() {

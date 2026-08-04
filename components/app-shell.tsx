@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BellRing,
+  ChartNoAxesCombined,
   CalendarDays,
   CalendarSearch,
   FileUp,
@@ -21,6 +22,7 @@ const navItems = [
   { href: "/predictions", label: "Predictions", icon: CalendarSearch },
   { href: "/events", label: "Events", icon: ListChecks },
   { href: "/events/import", label: "Calendar Import", icon: FileUp },
+  { href: "/activity", label: "Alliance Activity", icon: ChartNoAxesCombined },
   { href: "/templates", label: "Templates", icon: WandSparkles },
   { href: "/announcements", label: "Announcements", icon: BellRing },
   { href: "/settings", label: "Settings", icon: Settings }
@@ -42,7 +44,7 @@ export function AppShell({
           <div className="brand-mark"><Shield size={24} /></div>
           <div>
             <strong>Conclave</strong>
-            <span>Kingdom Events</span>
+            <span>Kingdom Command</span>
           </div>
         </div>
         <nav className="nav" aria-label="Primary navigation">
