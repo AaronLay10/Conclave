@@ -453,6 +453,17 @@ textarea { min-height: 110px; resize: vertical; }
 .tier-at-risk { color: #f3a0a0; background: rgba(220,107,107,.1); }
 .activity-center .empty svg { color: var(--muted); margin-bottom: 8px; }
 .activity-center .empty p { margin: 0; }
+.whitelist-list { display: grid; }
+.whitelist-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 15px 18px;
+  border-top: 1px solid var(--border);
+}
+.whitelist-row:first-child { border-top: 0; }
+.whitelist-row .actions { flex: 0 0 auto; }
 
 @media (max-width: 1050px) {
   .grid.cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -462,6 +473,7 @@ textarea { min-height: 110px; resize: vertical; }
   .activity-table-header { align-items: flex-start; flex-direction: column; }
   .activity-filters { width: 100%; }
   .search-field { width: 100%; }
+  .whitelist-row { align-items: flex-start; }
 }
 @media (max-width: 760px) {
   .app-layout { grid-template-columns: 1fr; }
@@ -486,4 +498,5 @@ textarea { min-height: 110px; resize: vertical; }
   .prediction-summary, .prediction-item { align-items: stretch; flex-direction: column; }
   .prediction-actions { justify-content: stretch; }
   .prediction-actions .button { flex: 1; }
+  .whitelist-row { flex-direction: column; }
 }

@@ -28,6 +28,7 @@ Conclave is a focused web command center for planning Rise of Kingdoms events an
 - Hero Scrolls Activity and Forts CSV imports
 - Formula-equivalent 100-point alliance activity scoring
 - Leadership-only member rankings and reporting snapshots
+- Event Director-managed Discord login whitelist with active-session enforcement
 
 ## Architecture
 
@@ -114,6 +115,15 @@ CSV and a Forts CSV, confirm each reporting period, and preview the resulting
 member scores before saving. Conclave matches records by Governor ID and
 recomputes the score server-side. Migration `0006_activity_scores.sql` adds the
 leadership-only snapshots and member rankings.
+
+### Discord login whitelist
+
+Migration `0007_discord_login_allowlist.sql` adds an Event Director-managed
+Discord User ID allowlist. The empty state deliberately preserves existing
+role-based access for safe bootstrap. Adding the first entry automatically
+protects the current Event Director; from then on, only active IDs can complete
+OAuth or retain an active Conclave session. Manage entries from **Settings →
+Discord login whitelist**.
 
 ## Discord OAuth setup
 
