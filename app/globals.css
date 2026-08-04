@@ -318,6 +318,43 @@ textarea { min-height: 110px; resize: vertical; }
   text-overflow: ellipsis;
 }
 .calendar-event.kingdom { border-left-color: var(--gold); background: rgba(209,165,68,.12); }
+.calendar-event.certainty-predicted {
+  border-left-color: var(--gold-soft);
+  border-top: 1px dashed rgba(240,216,141,.42);
+  border-right: 1px dashed rgba(240,216,141,.42);
+  border-bottom: 1px dashed rgba(240,216,141,.42);
+  background: rgba(209,165,68,.07);
+}
+.calendar-event.certainty-leadership_scheduled { border-left-color: var(--blue); }
+.calendar-event.certainty-tbd { border-left-color: var(--muted); opacity: .78; }
+.calendar-legend {
+  display: flex; gap: 16px; flex-wrap: wrap; margin: -10px 0 14px;
+  color: var(--muted); font-size: .78rem;
+}
+.calendar-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.certainty-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.certainty-dot.confirmed { background: var(--green); }
+.certainty-dot.predicted { background: var(--gold-soft); }
+.certainty-dot.leadership_scheduled { background: var(--blue); }
+.prediction-summary {
+  padding: 18px; display: flex; align-items: center; justify-content: space-between; gap: 20px;
+}
+.prediction-summary p { margin: 7px 0 0; }
+.prediction-list { display: grid; }
+.prediction-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 24px;
+  padding: 18px; border-bottom: 1px solid var(--border);
+}
+.prediction-item:last-child { border-bottom: 0; }
+.prediction-main { min-width: 0; }
+.prediction-title h3 { margin: 0; }
+.prediction-time { margin: 8px 0 4px; color: var(--gold-soft); font-size: .9rem; }
+.prediction-main p { color: var(--muted); margin: 10px 0 0; }
+.prediction-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; flex: 0 0 auto; }
+.empty svg { margin-bottom: 8px; color: var(--green); }
+.empty p { margin: 0; }
+.spin { animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .copy-box {
   background: #0d1520; border: 1px solid var(--border);
@@ -379,4 +416,7 @@ textarea { min-height: 110px; resize: vertical; }
   .event-row { grid-template-columns: 1fr; }
   .detail-list { grid-template-columns: 1fr; gap: 4px; }
   .daily-mail-layout { grid-template-columns: 1fr; }
+  .prediction-summary, .prediction-item { align-items: stretch; flex-direction: column; }
+  .prediction-actions { justify-content: stretch; }
+  .prediction-actions .button { flex: 1; }
 }

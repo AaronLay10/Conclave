@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BellRing,
   CalendarDays,
+  CalendarSearch,
   FileUp,
   FileText,
   LayoutDashboard,
@@ -17,6 +18,7 @@ import {
 const navItems = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/predictions", label: "Predictions", icon: CalendarSearch },
   { href: "/events", label: "Events", icon: ListChecks },
   { href: "/events/import", label: "Calendar Import", icon: FileUp },
   { href: "/templates", label: "Templates", icon: WandSparkles },
