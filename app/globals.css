@@ -481,6 +481,9 @@ textarea { min-height: 110px; resize: vertical; }
     radial-gradient(circle at 85% 15%, rgba(98,167,216,.14), transparent 36%),
     linear-gradient(135deg, rgba(209,165,68,.1), rgba(14,23,35,.95) 58%);
 }
+.portal-preview-banner { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 12px 15px; margin-bottom: 12px; border: 1px solid rgba(98,167,216,.4); border-radius: 10px; background: rgba(98,167,216,.09); }
+.portal-preview-banner strong, .portal-preview-banner span { display: block; }
+.portal-preview-banner span { margin-top: 3px; color: var(--muted); font-size: .76rem; }
 .alliance-dashboard-hero h1 { margin: 7px 0 5px; }
 .alliance-dashboard-hero h1 span { color: var(--gold-soft); }
 .alliance-dashboard-hero p { margin: 0; color: var(--muted); }
@@ -550,5 +553,6 @@ textarea { min-height: 110px; resize: vertical; }
   .prediction-actions .button { flex: 1; }
   .whitelist-row { flex-direction: column; }
   .alliance-dashboard-hero { align-items: flex-start; flex-direction: column; padding: 20px; }
+  .portal-preview-banner { align-items: flex-start; flex-direction: column; }
   .alliance-quick-grid { grid-template-columns: 1fr; }
 }

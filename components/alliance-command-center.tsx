@@ -22,6 +22,7 @@ type AllianceCommandCenterProps = {
   role: AppRole;
   events: RokEvent[];
   activity: ActivitySnapshot | null;
+  isPreview?: boolean;
 };
 
 const tierOrder: ActivityTier[] = ["Exceptional", "Strong", "Active", "Light", "At Risk"];
@@ -33,7 +34,7 @@ function shortDate(value: string) {
     : date.toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-export function AllianceCommandCenter({ allianceName, allianceTag, role, events, activity }: AllianceCommandCenterProps) {
+export function AllianceCommandCenter({ allianceName, allianceTag, role, events, activity, isPreview = false }: AllianceCommandCenterProps) {
   const now = new Date();
   const active = events.filter((event) => eventIsActive(event, now));
   const upcoming = events.filter((event) => eventIsUpcoming(event, now));
@@ -53,6 +54,12 @@ export function AllianceCommandCenter({ allianceName, allianceTag, role, events,
 
   return (
     <>
+      {isPreview && (
+        <div className="portal-preview-banner">
+          <div><strong>Alliance R5 preview</strong><span>You are viewing the portal exactly as alliance leadership will see it.</span></div>
+          <Link href="/dashboard" className="button">Exit preview</Link>
+        </div>
+      )}
       <section className="card alliance-dashboard-hero">
         <div>
           <div className="row alliance-eyebrow"><Shield size={16} /> {roleLabels[role]}</div>

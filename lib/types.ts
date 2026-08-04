@@ -111,6 +111,7 @@ export interface ActivityMemberScore {
 
 export interface ActivitySnapshot {
   id: string;
+  alliance_id: string;
   alliance_tag: string;
   alliance_name: string;
   activity_period_start: string;
