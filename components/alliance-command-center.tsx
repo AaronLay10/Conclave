@@ -1,6 +1,5 @@
 import Link from "next/link";
 import {
-  AlertTriangle,
   ArrowRight,
   BellRing,
   CalendarDays,
@@ -45,7 +44,6 @@ export function AllianceCommandCenter({ allianceName, allianceTag, role, events,
   const averageScore = members.length
     ? members.reduce((sum, member) => sum + member.activity_score, 0) / members.length
     : 0;
-  const needsAttention = members.filter((member) => member.tier === "Light" || member.tier === "At Risk");
   const tierCounts = tierOrder.map((tier) => ({
     tier,
     count: members.filter((member) => member.tier === tier).length
@@ -76,7 +74,7 @@ export function AllianceCommandCenter({ allianceName, allianceTag, role, events,
         <StatCard label="Active now" value={active.length} meta="Events currently underway" />
         <StatCard label="Next 7 days" value={nextSevenDays.length} meta="Alliance and kingdom events" />
         <StatCard label="Activity average" value={activity ? averageScore.toFixed(1) : "—"} meta={activity ? `${members.length} members scored` : "No report available"} />
-        <StatCard label="Needs attention" value={activity ? needsAttention.length : "—"} meta="Light or at-risk activity" />
+        <StatCard label="Roster scored" value={activity ? members.length : "—"} meta="Latest activity report" />
       </div>
 
       <section className="section alliance-quick-grid">
@@ -123,12 +121,6 @@ export function AllianceCommandCenter({ allianceName, allianceTag, role, events,
                   </div>
                 ))}
               </div>
-              {needsAttention.length > 0 && (
-                <div className="alliance-attention-note">
-                  <AlertTriangle size={17} />
-                  <span><strong>{needsAttention.length} members need review.</strong> Use the Activity dashboard to filter and sort the roster.</span>
-                </div>
-              )}
             </div>
           ) : (
             <div className="empty"><Users size={30} /><p>No activity snapshot is available for this alliance yet.</p></div>

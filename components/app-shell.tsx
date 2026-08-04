@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   BellRing,
@@ -12,7 +13,6 @@ import {
   LayoutDashboard,
   ListChecks,
   Settings,
-  Shield,
   WandSparkles
 } from "lucide-react";
 import { canAccessPage, isAllianceLeadershipRole, roleLabels, type AppRole } from "@/lib/access-control";
@@ -45,6 +45,12 @@ export function AppShell({
 }) {
   const pathname = usePathname();
   const alliancePortal = isAllianceLeadershipRole(role);
+  const is126V = allianceTag?.toUpperCase() === "126V";
+  const isAdmin = role === "event_director";
+  const themeClass = is126V ? "alliance-theme-126v" : isAdmin ? "admin-theme-conclave" : "";
+  const brandEmblem = is126V
+    ? "/branding/126v-emblem-red-gold.png"
+    : "/branding/conclave-favicon.png";
   const allianceIdentity = allianceName && allianceTag ? `${allianceName} [${allianceTag}]` : "Your alliance";
   const visibleNavItems = navItems.filter(({ href }) => canAccessPage(role, href));
   const activeHref = [...visibleNavItems]
@@ -52,10 +58,18 @@ export function AppShell({
     .find(({ href }) => pathname === href || pathname.startsWith(`${href}/`))?.href;
 
   return (
-    <div className="app-layout">
+    <div className={`app-layout ${themeClass}`}>
       <aside className="sidebar">
         <div className="brand">
-          <div className="brand-mark"><Shield size={24} /></div>
+          <div className="brand-mark">
+            <Image
+              src={brandEmblem}
+              alt={is126V ? "126V alliance emblem" : "Conclave emblem"}
+              width={43}
+              height={43}
+              priority
+            />
+          </div>
           <div>
             <strong>Conclave</strong>
             <span>{alliancePortal ? "Alliance Leadership" : "Kingdom Command"}</span>
