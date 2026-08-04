@@ -29,6 +29,11 @@ function utcTime(value: string) {
   }).format(new Date(value));
 }
 
+function calendarEventLabel(event: RokEvent) {
+  const startsAtReset = event.start_at.slice(11, 19) === "00:00:00";
+  return startsAtReset ? event.name : `${utcTime(event.start_at)} ${event.name}`;
+}
+
 export function CalendarGrid({ events }: { events: RokEvent[] }) {
   const [month, setMonth] = useState(new Date(2026, 7, 1));
 
@@ -95,7 +100,7 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
                   title={event.name}
                   key={event.id}
                 >
-                  {utcTime(event.start_at)} {event.name}
+                  {calendarEventLabel(event)}
                 </Link>
               ))}
 
