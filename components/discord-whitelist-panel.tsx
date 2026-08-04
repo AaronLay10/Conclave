@@ -73,7 +73,7 @@ export function DiscordWhitelistPanel() {
         display_name: displayName,
         note,
         access_role: accessRole,
-        alliance_id: isAllianceLeadershipRole(accessRole) ? allianceId : null
+        alliance_id: isAllianceLeadershipRole(accessRole) ? allianceId || null : null
       });
       setDiscordId("");
       setDisplayName("");
