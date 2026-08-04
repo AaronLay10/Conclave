@@ -24,6 +24,7 @@ const navItems = [
   { href: "/events", label: "Events", icon: ListChecks },
   { href: "/events/import", label: "Calendar Import", icon: FileUp },
   { href: "/activity", label: "Alliance Activity", icon: ChartNoAxesCombined },
+  { href: "/activity/import", label: "Activity Import", icon: FileUp },
   { href: "/templates", label: "Templates", icon: WandSparkles },
   { href: "/announcements", label: "Announcements", icon: BellRing },
   { href: "/settings", label: "Settings", icon: Settings }
@@ -45,6 +46,10 @@ export function AppShell({
   const pathname = usePathname();
   const alliancePortal = isAllianceLeadershipRole(role);
   const allianceIdentity = allianceName && allianceTag ? `${allianceName} [${allianceTag}]` : "Your alliance";
+  const visibleNavItems = navItems.filter(({ href }) => canAccessPage(role, href));
+  const activeHref = [...visibleNavItems]
+    .sort((left, right) => right.href.length - left.href.length)
+    .find(({ href }) => pathname === href || pathname.startsWith(`${href}/`))?.href;
 
   return (
     <div className="app-layout">
@@ -57,11 +62,11 @@ export function AppShell({
           </div>
         </div>
         <nav className="nav" aria-label="Primary navigation">
-          {navItems.filter(({ href }) => canAccessPage(role, href)).map(({ href, label, icon: Icon }) => (
+          {visibleNavItems.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
-              className={`nav-link ${pathname.startsWith(href) ? "active" : ""}`}
+              className={`nav-link ${activeHref === href ? "active" : ""}`}
             >
               <Icon size={18} />
               {href === "/dashboard" && alliancePortal ? "Alliance Home" : label}

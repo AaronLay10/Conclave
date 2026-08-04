@@ -72,7 +72,7 @@ export function AllianceCommandCenter({ allianceName, allianceTag, role, events,
         </div>
       </section>
 
-      <div className="grid cols-4">
+      <div className="grid cols-4 alliance-stat-grid">
         <StatCard label="Active now" value={active.length} meta="Events currently underway" />
         <StatCard label="Next 7 days" value={nextSevenDays.length} meta="Alliance and kingdom events" />
         <StatCard label="Activity average" value={activity ? averageScore.toFixed(1) : "—"} meta={activity ? `${members.length} members scored` : "No report available"} />
