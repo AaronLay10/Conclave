@@ -23,6 +23,8 @@ Conclave is a focused web command center for planning, approving, publishing, co
 - Supabase Edge Function for Discord delivery
 - Supabase Cron example
 - Demo mode before cloud services are connected
+- Kingdom 4126 rolling predictions with confirmed-event deduplication
+- Prediction review and one-click in-game confirmation workflow
 
 ## Architecture
 
@@ -88,6 +90,19 @@ adds stable per-kingdom import keys and screenshot provenance. Imports require
 explicit UTC timestamps, enter Leadership Review, and skip existing keys unless
 replacement is deliberately enabled. See `calendar-imports/README.md` for the
 file format.
+
+### Rolling event predictions
+
+Event Directors can open **Predictions** to generate a 90-day rolling window for
+repeatable Kingdom 4126 rotations. The engine currently covers Mightiest
+Governor, Wheel of Fortune, Ark registration, Esmeralda's Prayer, and Hunt for
+History. Generated events always enter Leadership Review as **Predicted**.
+
+The generator compares stable prediction identities plus same-event overlapping
+dates. Existing confirmed, leadership-scheduled, TBD, or already-predicted
+records are never replaced. Irregular events such as More Than Gems and seasonal
+events are deliberately excluded and remain manual/TBD. When an event appears
+in-game, use **Confirm dates** or **Review or correct** from the prediction queue.
 
 ## Discord OAuth setup
 
@@ -162,6 +177,7 @@ Member instructions, leadership notes, source records, and reusable daily-mail s
 ```bash
 npm run typecheck
 npm run lint
+npm test
 npm run build
 ```
 

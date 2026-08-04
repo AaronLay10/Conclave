@@ -91,7 +91,7 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
               {dayEvents.slice(0, 4).map((event) => (
                 <Link
                   href={`/events/${event.id}`}
-                  className={`calendar-event ${event.scope}`}
+                  className={`calendar-event ${event.scope} certainty-${event.certainty}`}
                   title={event.name}
                   key={event.id}
                 >
