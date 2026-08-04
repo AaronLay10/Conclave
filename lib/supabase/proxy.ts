@@ -32,6 +32,15 @@ export async function updateSession(request: NextRequest) {
 
   const { data: claimsData } = await supabase.auth.getClaims();
   const isAuthenticated = Boolean(claimsData?.claims?.sub);
+  if (isAuthenticated && request.nextUrl.pathname === "/login") {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    dashboardUrl.search = "";
+    const redirect = NextResponse.redirect(dashboardUrl);
+    response.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie));
+    return redirect;
+  }
+
   const isPublicPath =
     request.nextUrl.pathname === "/login" ||
     request.nextUrl.pathname.startsWith("/auth/") ||
