@@ -39,6 +39,8 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
   }, [month]);
 
   const todayUtc = new Date().toISOString().slice(0, 10);
+  const monthKey = format(month, "yyyy-MM");
+  const monthHasEvents = events.some((event) => event.start_at.slice(0, 7) === monthKey);
 
   return (
     <div className="card calendar-shell">
@@ -65,49 +67,55 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
         </button>
       </div>
 
-      <div className="calendar-weekdays">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div className="calendar-weekday" key={day}>{day}</div>
-        ))}
-      </div>
+      <div className="calendar-scroll">
+        <div className="calendar-weekdays">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <div className="calendar-weekday" key={day}>{day}</div>
+          ))}
+        </div>
 
-      <div className="calendar-grid">
-        {days.map((day) => {
-          const dayKey = format(day, "yyyy-MM-dd");
-          const dayEvents = events.filter(
-            (event) => utcDateKey(event.start_at) === dayKey
-          );
+        <div className="calendar-grid">
+          {days.map((day) => {
+            const dayKey = format(day, "yyyy-MM-dd");
+            const dayEvents = events.filter(
+              (event) => utcDateKey(event.start_at) === dayKey
+            );
 
-          return (
-            <div
-              className={`calendar-day ${!isSameMonth(day, month) ? "outside" : ""}`}
-              key={day.toISOString()}
-            >
-              <div className={`calendar-date ${dayKey === todayUtc ? "today" : ""}`}>
-                <span>{format(day, "d")}</span>
-                {dayEvents.length > 0 && <span>{dayEvents.length}</span>}
-              </div>
-
-              {dayEvents.slice(0, 4).map((event) => (
-                <Link
-                  href={`/events/${event.id}`}
-                  className={`calendar-event ${event.scope} certainty-${event.certainty}`}
-                  title={event.name}
-                  key={event.id}
-                >
-                  {utcTime(event.start_at)} {event.name}
-                </Link>
-              ))}
-
-              {dayEvents.length > 4 && (
-                <div className="muted" style={{ fontSize: ".68rem", marginTop: 5 }}>
-                  +{dayEvents.length - 4} more
+            return (
+              <div
+                className={`calendar-day ${!isSameMonth(day, month) ? "outside" : ""} ${dayEvents.length === 0 ? "empty-day" : ""}`}
+                key={day.toISOString()}
+              >
+                <div className={`calendar-date ${dayKey === todayUtc ? "today" : ""}`}>
+                  <span>{format(day, "d")}</span>
+                  <span className="calendar-date-full">{format(day, "EEEE, MMM d")}</span>
+                  {dayEvents.length > 0 && <span>{dayEvents.length}</span>}
                 </div>
-              )}
-            </div>
-          );
-        })}
+
+                {dayEvents.slice(0, 4).map((event) => (
+                  <Link
+                    href={`/events/${event.id}`}
+                    className={`calendar-event ${event.scope} certainty-${event.certainty}`}
+                    title={event.name}
+                    key={event.id}
+                  >
+                    {utcTime(event.start_at)} {event.name}
+                  </Link>
+                ))}
+
+                {dayEvents.length > 4 && (
+                  <div className="muted" style={{ fontSize: ".68rem", marginTop: 5 }}>
+                    +{dayEvents.length - 4} more
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
+      {!monthHasEvents && (
+        <div className="empty calendar-month-empty">No events scheduled this month.</div>
+      )}
     </div>
   );
 }
