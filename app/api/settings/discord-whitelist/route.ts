@@ -6,12 +6,19 @@ import { isAllianceLeadershipRole, type AppRole } from "@/lib/access-control";
 
 const discordId = z.string().regex(/^\d{5,30}$/, "Enter a numeric Discord User ID.");
 const accessRole = z.enum(["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5", "viewer"]);
+const allianceId = z.preprocess(
+  (value) => typeof value === "string" && value.trim() === "" ? null : value,
+  z.string().regex(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    "Choose a valid alliance."
+  ).nullable().optional()
+);
 const accessSchema = z.object({
   discord_user_id: discordId,
   display_name: z.string().trim().max(120).optional(),
   note: z.string().trim().max(500).optional(),
   access_role: accessRole,
-  alliance_id: z.uuid().nullable().optional()
+  alliance_id: allianceId
 }).superRefine((value, context) => {
   if (isAllianceLeadershipRole(value.access_role as AppRole) && !value.alliance_id) {
     context.addIssue({ code: "custom", path: ["alliance_id"], message: "Choose an alliance for this alliance role." });
@@ -23,6 +30,13 @@ const accessSchema = z.object({
 const addSchema = accessSchema;
 const updateSchema = accessSchema.and(z.object({ is_active: z.boolean() }));
 const deleteSchema = z.object({ discord_user_id: discordId });
+
+function validationError(error: z.ZodError) {
+  const issue = error.issues[0];
+  if (!issue) return "Invalid login-access entry.";
+  const field = issue.path[0] === "alliance_id" ? "Alliance" : issue.path[0] === "discord_user_id" ? "Discord User ID" : "Access";
+  return `${field}: ${issue.message}`;
+}
 
 function optional(value?: string) {
   return value?.trim() || null;
@@ -91,7 +105,7 @@ export async function POST(request: Request) {
   const context = await directorContext();
   if ("error" in context) return NextResponse.json({ error: context.error }, { status: context.status });
   const parsed = addSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid entry." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: validationError(parsed.error) }, { status: 400 });
   if (!(await allianceIsValid(context, parsed.data.alliance_id))) {
     return NextResponse.json({ error: "Choose an active alliance in this kingdom." }, { status: 400 });
   }
@@ -140,7 +154,7 @@ export async function PATCH(request: Request) {
   const context = await directorContext();
   if ("error" in context) return NextResponse.json({ error: context.error }, { status: context.status });
   const parsed = updateSchema.safeParse(await request.json().catch(() => null));
-  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid entry." }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: validationError(parsed.error) }, { status: 400 });
   if (parsed.data.discord_user_id === context.currentDiscordId && !parsed.data.is_active) {
     return NextResponse.json({ error: "You cannot disable your own login entry." }, { status: 400 });
   }

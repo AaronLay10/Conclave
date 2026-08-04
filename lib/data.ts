@@ -120,9 +120,11 @@ export async function getCurrentMembership(): Promise<{
   role: AppRole;
   kingdom_id: string;
   alliance_id: string | null;
+  alliance_name: string | null;
+  alliance_tag: string | null;
 } | null> {
   if (!isSupabaseConfigured()) {
-    return { role: "event_director", kingdom_id: "demo-kingdom", alliance_id: null };
+    return { role: "event_director", kingdom_id: "demo-kingdom", alliance_id: null, alliance_name: null, alliance_tag: null };
   }
 
   const supabase = await createClient();
@@ -130,12 +132,20 @@ export async function getCurrentMembership(): Promise<{
   if (!authData.user) return null;
   const { data, error } = await supabase
     .from("memberships")
-    .select("role, kingdom_id, alliance_id")
+    .select("role, kingdom_id, alliance_id, alliances(name, tag)")
     .eq("user_id", authData.user.id)
     .eq("is_active", true)
     .limit(1)
     .maybeSingle();
 
   if (error) throw new Error(`Unable to load membership: ${error.message}`);
-  return data as { role: AppRole; kingdom_id: string; alliance_id: string | null } | null;
+  if (!data) return null;
+  const alliance = data.alliances as unknown as { name: string; tag: string } | null;
+  return {
+    role: data.role as AppRole,
+    kingdom_id: data.kingdom_id,
+    alliance_id: data.alliance_id,
+    alliance_name: alliance?.name ?? null,
+    alliance_tag: alliance?.tag ?? null
+  };
 }

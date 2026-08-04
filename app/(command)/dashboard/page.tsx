@@ -3,11 +3,28 @@ import { AlertTriangle, ArrowRight, Plus } from "lucide-react";
 import { DemoBanner } from "@/components/demo-banner";
 import { EventCard } from "@/components/event-card";
 import { StatCard } from "@/components/stat-card";
-import { getCurrentMembership, getEvents } from "@/lib/data";
+import { AllianceCommandCenter } from "@/components/alliance-command-center";
+import { getCurrentMembership, getEvents, getLatestActivitySnapshot } from "@/lib/data";
+import { isAllianceLeadershipRole } from "@/lib/access-control";
 import { eventIsActive, eventIsUpcoming, timeUntil } from "@/lib/utils";
 
 export default async function DashboardPage() {
   const [events, membership] = await Promise.all([getEvents(), getCurrentMembership()]);
+  if (membership && isAllianceLeadershipRole(membership.role)) {
+    const activity = await getLatestActivitySnapshot();
+    return (
+      <>
+        <DemoBanner />
+        <AllianceCommandCenter
+          allianceName={membership.alliance_name ?? activity?.alliance_name ?? "Alliance"}
+          allianceTag={membership.alliance_tag ?? activity?.alliance_tag ?? "—"}
+          role={membership.role}
+          events={events}
+          activity={activity}
+        />
+      </>
+    );
+  }
   const now = new Date();
   const active = events.filter((event) => eventIsActive(event, now));
   const upcoming = events.filter((event) => eventIsUpcoming(event, now));

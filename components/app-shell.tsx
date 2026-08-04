@@ -15,7 +15,7 @@ import {
   Shield,
   WandSparkles
 } from "lucide-react";
-import { canAccessPage, roleLabels, type AppRole } from "@/lib/access-control";
+import { canAccessPage, isAllianceLeadershipRole, roleLabels, type AppRole } from "@/lib/access-control";
 
 const navItems = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
@@ -32,13 +32,19 @@ const navItems = [
 export function AppShell({
   children,
   userName,
-  role
+  role,
+  allianceName,
+  allianceTag
 }: {
   children: React.ReactNode;
   userName: string;
   role: AppRole;
+  allianceName: string | null;
+  allianceTag: string | null;
 }) {
   const pathname = usePathname();
+  const alliancePortal = isAllianceLeadershipRole(role);
+  const allianceIdentity = allianceName && allianceTag ? `${allianceName} [${allianceTag}]` : "Your alliance";
 
   return (
     <div className="app-layout">
@@ -47,7 +53,7 @@ export function AppShell({
           <div className="brand-mark"><Shield size={24} /></div>
           <div>
             <strong>Conclave</strong>
-            <span>Kingdom Command</span>
+            <span>{alliancePortal ? "Alliance Leadership" : "Kingdom Command"}</span>
           </div>
         </div>
         <nav className="nav" aria-label="Primary navigation">
@@ -58,21 +64,21 @@ export function AppShell({
               className={`nav-link ${pathname.startsWith(href) ? "active" : ""}`}
             >
               <Icon size={18} />
-              {label}
+              {href === "/dashboard" && alliancePortal ? "Alliance Home" : label}
             </Link>
           ))}
         </nav>
         <div className="sidebar-footer">
           <div className="card" style={{ padding: 13 }}>
-            <div className="row"><FileText size={15} /><strong>Kingdom 4126</strong></div>
-            <small>{roleLabels[role]}: {userName}</small>
+            <div className="row"><FileText size={15} /><strong>{alliancePortal ? allianceIdentity : "Kingdom 4126"}</strong></div>
+            <small>{roleLabels[role]} · {userName}</small>
           </div>
         </div>
       </aside>
       <main className="main">
         <header className="topbar">
           <div>
-            <div className="topbar-title">Kingdom 4126 · Conclave</div>
+            <div className="topbar-title">{alliancePortal ? `${allianceTag ? `[${allianceTag}] · ` : ""}Alliance Portal` : "Kingdom 4126 · Conclave"}</div>
           </div>
           <div className="row">
             <span className="badge leadership_scheduled">UTC</span>
