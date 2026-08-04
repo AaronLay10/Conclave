@@ -337,6 +337,8 @@ textarea { min-height: 110px; resize: vertical; }
   display: flex; justify-content: space-between; align-items: center;
   padding: 14px; border-bottom: 1px solid var(--border);
 }
+.calendar-timezone-note { font-size: .75rem; }
+.calendar-day-overflow { margin-top: 5px; font-size: .68rem; }
 .calendar-weekdays, .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -631,6 +633,7 @@ textarea { min-height: 110px; resize: vertical; }
     overflow-wrap: anywhere;
   }
   .calendar-month-empty { display: block; }
+  .calendar-timezone-note, .calendar-day-overflow { font-size: .82rem; }
   .calendar-legend { font-size: .84rem; }
   .event-row { grid-template-columns: 1fr; }
   .detail-list { grid-template-columns: 1fr; gap: 4px; }
