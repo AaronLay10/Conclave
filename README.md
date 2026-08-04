@@ -136,6 +136,12 @@ enforces page access both in navigation and on direct URLs:
 - **Alliance R4 / R5:** dashboards, calendar, events, announcements, and their own alliance activity
 - **Viewer:** dashboard, calendar, and published/allowed events
 
+The landing page is role-aware. Event Directors retain the kingdom **Events
+Command Center**. Alliance R4 and R5 users receive an **Alliance Home** portal
+with their alliance identity, current and upcoming events, activity health,
+attention counts, report coverage, and direct links to calendar, activity,
+event details, and announcements.
+
 ## Discord OAuth setup
 
 1. Create an application named **Conclave** in the Discord Developer Portal.

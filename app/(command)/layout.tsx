@@ -21,5 +21,14 @@ export default async function CommandLayout({
       ? metadataName
       : user?.email?.split("@")[0] ?? "Event Director";
 
-  return <AppShell userName={userName} role={membership?.role ?? "viewer"}>{children}</AppShell>;
+  return (
+    <AppShell
+      userName={userName}
+      role={membership?.role ?? "viewer"}
+      allianceName={membership?.alliance_name ?? null}
+      allianceTag={membership?.alliance_tag ?? null}
+    >
+      {children}
+    </AppShell>
+  );
 }
