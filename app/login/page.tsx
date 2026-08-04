@@ -17,6 +17,8 @@ export default function LoginPage() {
       setError("Conclave could not verify the Discord login whitelist. Please contact an Event Director.");
     } else if (reason === "oauth_exchange_failed") {
       setError("Discord login could not be completed. Please try again.");
+    } else if (reason === "access_not_configured") {
+      setError("Your Discord login is approved, but an Event Director still needs to assign your Conclave role.");
     }
   }, []);
 

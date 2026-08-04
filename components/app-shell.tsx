@@ -15,6 +15,7 @@ import {
   Shield,
   WandSparkles
 } from "lucide-react";
+import { canAccessPage, roleLabels, type AppRole } from "@/lib/access-control";
 
 const navItems = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
@@ -30,10 +31,12 @@ const navItems = [
 
 export function AppShell({
   children,
-  userName
+  userName,
+  role
 }: {
   children: React.ReactNode;
   userName: string;
+  role: AppRole;
 }) {
   const pathname = usePathname();
 
@@ -48,7 +51,7 @@ export function AppShell({
           </div>
         </div>
         <nav className="nav" aria-label="Primary navigation">
-          {navItems.map(({ href, label, icon: Icon }) => (
+          {navItems.filter(({ href }) => canAccessPage(role, href)).map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
               href={href}
@@ -62,7 +65,7 @@ export function AppShell({
         <div className="sidebar-footer">
           <div className="card" style={{ padding: 13 }}>
             <div className="row"><FileText size={15} /><strong>Kingdom 4126</strong></div>
-            <small>Event Director: {userName}</small>
+            <small>{roleLabels[role]}: {userName}</small>
           </div>
         </div>
       </aside>
@@ -73,7 +76,7 @@ export function AppShell({
           </div>
           <div className="row">
             <span className="badge leadership_scheduled">UTC</span>
-            <strong>{userName}</strong>
+            <div className="topbar-identity"><strong>{userName}</strong><small>{roleLabels[role]}</small></div>
           </div>
         </header>
         <div className="content">{children}</div>

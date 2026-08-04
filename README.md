@@ -110,11 +110,13 @@ in-game, use **Confirm dates** or **Review or correct** from the prediction queu
 
 ### Alliance activity imports
 
-Leadership can open **Alliance Activity**, select a Hero Scrolls weekly Activity
-CSV and a Forts CSV, confirm each reporting period, and preview the resulting
-member scores before saving. Conclave matches records by Governor ID and
-recomputes the score server-side. Migration `0006_activity_scores.sql` adds the
-leadership-only snapshots and member rankings.
+Event Directors can open **Alliance Activity**, select a Hero Scrolls weekly
+Activity CSV and a Forts CSV, confirm each reporting period, and preview the
+resulting member scores before saving. Conclave matches records by Governor ID
+and recomputes the score server-side. Alliance Leadership receives a dashboard-only
+view of its own alliance with member search, tier and attention filters, and
+sortable activity columns. Import controls and scoring details remain available
+only to Event Directors.
 
 ### Discord login whitelist
 
@@ -124,6 +126,15 @@ role-based access for safe bootstrap. Adding the first entry automatically
 protects the current Event Director; from then on, only active IDs can complete
 OAuth or retain an active Conclave session. Manage entries from **Settings →
 Discord login whitelist**.
+
+Migration `0008_role_page_access.sql` adds a role and optional alliance scope to
+each whitelist entry. On login, Conclave provisions the matching membership and
+enforces page access both in navigation and on direct URLs:
+
+- **Event Director:** every page, including Settings, imports, and predictions
+- **Kingdom Council:** dashboards, calendar, events, templates, announcements, and activity
+- **Alliance Leadership:** dashboards, calendar, events, announcements, and its own alliance activity
+- **Viewer:** dashboard, calendar, and published/allowed events
 
 ## Discord OAuth setup
 

@@ -2,11 +2,11 @@ import Link from "next/link";
 import { FileUp, Plus } from "lucide-react";
 import { DemoBanner } from "@/components/demo-banner";
 import { StatusBadge } from "@/components/status-badge";
-import { getEvents } from "@/lib/data";
+import { getCurrentMembership, getEvents } from "@/lib/data";
 import { formatUtc } from "@/lib/utils";
 
 export default async function EventsPage() {
-  const events = await getEvents();
+  const [events, membership] = await Promise.all([getEvents(), getCurrentMembership()]);
 
   return (
     <>
@@ -16,10 +16,10 @@ export default async function EventsPage() {
           <h1>Events</h1>
           <p className="muted">Every kingdom and alliance event in one operational list.</p>
         </div>
-        <div className="actions">
+        {membership?.role === "event_director" && <div className="actions">
           <Link className="button" href="/events/import"><FileUp size={17} /> Import calendar</Link>
           <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>
-        </div>
+        </div>}
       </div>
 
       <div className="card">

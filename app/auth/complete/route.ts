@@ -61,6 +61,18 @@ export async function GET(request: NextRequest) {
     return response;
   }
 
+  const { data: role, error: accessError } = await supabase.rpc(
+    "provision_current_user_access"
+  );
+  if (accessError || !role) {
+    await supabase.auth.signOut();
+    const errorUrl = new URL("/login", origin);
+    errorUrl.searchParams.set("error", "access_not_configured");
+    response.headers.set("Location", errorUrl.toString());
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
+
   response.headers.set("Cache-Control", "private, no-store");
   return response;
 }

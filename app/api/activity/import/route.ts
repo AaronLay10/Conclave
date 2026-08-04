@@ -99,8 +99,8 @@ export async function POST(request: Request) {
     .maybeSingle();
 
   if (membershipError) return NextResponse.json({ error: membershipError.message }, { status: 400 });
-  if (!membership || !["event_director", "council", "alliance_lead"].includes(membership.role)) {
-    return NextResponse.json({ error: "Leadership access is required to import activity." }, { status: 403 });
+  if (!membership || membership.role !== "event_director") {
+    return NextResponse.json({ error: "Only an Event Director can import activity." }, { status: 403 });
   }
 
   const { data: alliance, error: allianceError } = await supabase
@@ -112,10 +112,6 @@ export async function POST(request: Request) {
 
   if (allianceError) return NextResponse.json({ error: allianceError.message }, { status: 400 });
   if (!alliance) return NextResponse.json({ error: `Alliance [${parsed.data.alliance_tag}] does not exist in this kingdom.` }, { status: 400 });
-  if (membership.role === "alliance_lead" && membership.alliance_id !== alliance.id) {
-    return NextResponse.json({ error: "Alliance Leads can only import their own alliance." }, { status: 403 });
-  }
-
   const periodMatch = {
     alliance_id: alliance.id,
     activity_period_start: parsed.data.activity_period_start,

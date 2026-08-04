@@ -20,6 +20,13 @@ export async function GET(request: Request) {
       const reason = allowlistError ? "whitelist_check_failed" : "not_whitelisted";
       return NextResponse.redirect(new URL(`/login?error=${reason}`, requestUrl.origin));
     }
+    const { data: role, error: accessError } = await supabase.rpc(
+      "provision_current_user_access"
+    );
+    if (accessError || !role) {
+      await supabase.auth.signOut();
+      return NextResponse.redirect(new URL("/login?error=access_not_configured", requestUrl.origin));
+    }
   }
 
   return NextResponse.redirect(new URL(next, requestUrl.origin));

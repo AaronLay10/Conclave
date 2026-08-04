@@ -1,6 +1,7 @@
 import { demoAnnouncements, demoEvents, demoTemplates } from "@/lib/demo-data";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { createClient } from "@/lib/supabase/server";
+import type { AppRole } from "@/lib/access-control";
 import type { ActivityMemberScore, ActivityScoreConfig, ActivitySnapshot, Announcement, EventTemplate, RokEvent } from "@/lib/types";
 
 export async function getEvents(): Promise<RokEvent[]> {
@@ -113,4 +114,28 @@ export async function getCurrentUser() {
   } = await supabase.auth.getUser();
 
   return user;
+}
+
+export async function getCurrentMembership(): Promise<{
+  role: AppRole;
+  kingdom_id: string;
+  alliance_id: string | null;
+} | null> {
+  if (!isSupabaseConfigured()) {
+    return { role: "event_director", kingdom_id: "demo-kingdom", alliance_id: null };
+  }
+
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return null;
+  const { data, error } = await supabase
+    .from("memberships")
+    .select("role, kingdom_id, alliance_id")
+    .eq("user_id", authData.user.id)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw new Error(`Unable to load membership: ${error.message}`);
+  return data as { role: AppRole; kingdom_id: string; alliance_id: string | null } | null;
 }
