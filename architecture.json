@@ -1,7 +1,7 @@
 {
   "name": "Conclave",
   "tagline": "Where alliances plan as one.",
-  "scope": "events-only",
+  "scope": "events and alliance activity",
   "frontend": "Next.js App Router on Vercel",
   "backend": "Supabase PostgreSQL/Auth/RLS/Cron/Edge Functions",
   "auth": "Discord OAuth",
@@ -15,6 +15,7 @@
     "/events/new",
     "/templates",
     "/announcements",
-    "/settings"
+    "/settings",
+    "/activity"
   ]
 }

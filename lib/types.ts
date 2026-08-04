@@ -66,3 +66,60 @@ export interface Announcement {
   scheduled_at: string | null;
   published_at: string | null;
 }
+
+export type ActivityTier = "Exceptional" | "Strong" | "Active" | "Light" | "At Risk";
+
+export interface ActivityScoreConfig {
+  weights: {
+    building: number;
+    tech: number;
+    resources: number;
+    helps: number;
+    forts: number;
+  };
+  targets: {
+    building: number;
+    tech: number;
+    resources: number;
+    helps: number;
+    fortPointsPerWeek: number;
+  };
+  fortWeeks: number;
+}
+
+export interface ActivityMemberScore {
+  governor_id: string;
+  governor_name: string;
+  building_points: number;
+  tech_donations: number;
+  resource_assistance: number;
+  helps_given: number;
+  fort_points: number;
+  fort_points_per_week: number;
+  launches: number;
+  joins: number;
+  building_score: number;
+  tech_score: number;
+  resource_score: number;
+  helps_score: number;
+  fort_score: number;
+  activity_score: number;
+  tier: ActivityTier;
+  rank: number;
+  data_note: string | null;
+}
+
+export interface ActivitySnapshot {
+  id: string;
+  alliance_tag: string;
+  alliance_name: string;
+  activity_period_start: string;
+  activity_period_end: string;
+  fort_period_start: string;
+  fort_period_end: string;
+  activity_source_name: string;
+  fort_source_name: string;
+  score_config: ActivityScoreConfig;
+  created_at: string;
+  members: ActivityMemberScore[];
+}

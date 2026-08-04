@@ -2,7 +2,7 @@
 
 **Where alliances plan as one.**
 
-Conclave is a focused web command center for planning, approving, publishing, coordinating, and recording Rise of Kingdoms kingdom and alliance events.
+Conclave is a focused web command center for planning Rise of Kingdoms events and reviewing alliance participation.
 
 ## Delivered MVP
 
@@ -25,6 +25,9 @@ Conclave is a focused web command center for planning, approving, publishing, co
 - Demo mode before cloud services are connected
 - Kingdom 4126 rolling predictions with confirmed-event deduplication
 - Prediction review and one-click in-game confirmation workflow
+- Hero Scrolls Activity and Forts CSV imports
+- Formula-equivalent 100-point alliance activity scoring
+- Leadership-only member rankings and reporting snapshots
 
 ## Architecture
 
@@ -103,6 +106,14 @@ dates. Existing confirmed, leadership-scheduled, TBD, or already-predicted
 records are never replaced. Irregular events such as More Than Gems and seasonal
 events are deliberately excluded and remain manual/TBD. When an event appears
 in-game, use **Confirm dates** or **Review or correct** from the prediction queue.
+
+### Alliance activity imports
+
+Leadership can open **Alliance Activity**, select a Hero Scrolls weekly Activity
+CSV and a Forts CSV, confirm each reporting period, and preview the resulting
+member scores before saving. Conclave matches records by Governor ID and
+recomputes the score server-side. Migration `0006_activity_scores.sql` adds the
+leadership-only snapshots and member rankings.
 
 ## Discord OAuth setup
 
@@ -183,6 +194,8 @@ npm run build
 
 Commit the generated lockfile after the first successful `npm install` so deployments remain reproducible.
 
-## MVP boundary
+## Current boundary
 
-Conclave is intentionally events-only. Recruitment, diplomacy, member statistics, kingdom laws, war maps, and broader community-management functions are outside this MVP.
+Conclave covers event operations and alliance activity reporting. Recruitment,
+diplomacy, kingdom laws, war maps, and broader community-management functions
+remain outside the current product boundary.
