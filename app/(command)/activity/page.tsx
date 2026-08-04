@@ -16,8 +16,11 @@ export default async function ActivityPage() {
           <h1>Alliance Activity</h1>
           <p className="muted">Review participation, identify support needs, and keep alliance activity visible.</p>
         </div>
+        {membership?.role === "event_director" && <Link href="/activity/import" className="button primary"><FileUp size={17} /> Import activity</Link>}
       </div>
-      <ActivityCenter initialSnapshot={snapshot} canImport={membership?.role === "event_director"} />
+      <ActivityCenter initialSnapshot={snapshot} />
     </>
   );
 }
+import Link from "next/link";
+import { FileUp } from "lucide-react";

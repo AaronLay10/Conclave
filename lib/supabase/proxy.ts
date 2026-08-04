@@ -2,8 +2,19 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { canAccessPage, isAppRole } from "@/lib/access-control";
+import { canonicalConclaveUrl } from "@/lib/canonical-url";
 
 export async function updateSession(request: NextRequest) {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+  const requestHost = forwardedHost || request.headers.get("host") || request.nextUrl.host;
+  const canonicalUrl = canonicalConclaveUrl({
+    host: requestHost,
+    pathname: request.nextUrl.pathname,
+    search: request.nextUrl.search,
+    isProduction: process.env.VERCEL_ENV === "production"
+  });
+  if (canonicalUrl) return NextResponse.redirect(canonicalUrl, 307);
+
   if (!isSupabaseConfigured()) {
     return NextResponse.next({ request });
   }

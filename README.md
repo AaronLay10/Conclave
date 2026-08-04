@@ -110,13 +110,13 @@ in-game, use **Confirm dates** or **Review or correct** from the prediction queu
 
 ### Alliance activity imports
 
-Event Directors can open **Alliance Activity**, select a Hero Scrolls weekly
-Activity CSV and a Forts CSV, confirm each reporting period, and preview the
-resulting member scores before saving. Conclave matches records by Governor ID
-and recomputes the score server-side. Alliance Leadership receives a dashboard-only
-view of its own alliance with member search, tier and attention filters, and
-sortable activity columns. Import controls and scoring details remain available
-only to Event Directors.
+Event Directors use the separate **Activity Import** page to select a Hero
+Scrolls weekly Activity CSV and a Forts CSV, confirm each reporting period, and
+preview the resulting member scores before saving. Conclave matches records by
+Governor ID and recomputes the score server-side. **Alliance Activity** is a
+focused member report for leadership with search, tier and attention filters,
+sortable activity columns, and a mobile card layout. Import controls and scoring
+details remain available only to Event Directors on `/activity/import`.
 
 ### Discord login whitelist
 
@@ -201,10 +201,18 @@ Use `supabase/cron-setup.example.sql` to schedule the dispatcher after replacing
 3. Add:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-   - `NEXT_PUBLIC_APP_URL`
+   - `NEXT_PUBLIC_APP_URL=https://conclave.drunstan.com`
 4. Deploy.
-5. Add the production callback URL in Supabase Auth and Discord OAuth.
+5. In Supabase Auth URL Configuration, set the Site URL to
+   `https://conclave.drunstan.com` and add both
+   `https://conclave.drunstan.com/auth/complete` and
+   `https://conclave.drunstan.com/auth/callback` as redirect URLs.
 6. Do not add Supabase service-role credentials to client-visible environment variables.
+
+Production requests that reach the Vercel project hostname are redirected to
+the custom domain before OAuth codes are exchanged, preserving the callback
+path and query string so session cookies are always written for
+`conclave.drunstan.com`.
 
 ## Event reference
 

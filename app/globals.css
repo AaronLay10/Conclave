@@ -555,4 +555,33 @@ textarea { min-height: 110px; resize: vertical; }
   .alliance-dashboard-hero { align-items: flex-start; flex-direction: column; padding: 20px; }
   .portal-preview-banner { align-items: flex-start; flex-direction: column; }
   .alliance-quick-grid { grid-template-columns: 1fr; }
+  .alliance-dashboard-hero .actions { display: grid; width: 100%; }
+  .alliance-dashboard-hero .button { justify-content: center; }
+  .alliance-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .alliance-stat-grid .stat-card { padding: 14px; }
+  .alliance-stat-grid .stat-value { font-size: 1.65rem; }
+  .activity-period-summary { justify-content: space-between; gap: 16px; }
+  .tier-pulse-list > div { grid-template-columns: 82px 1fr 24px; }
+  .activity-member-report { border: 0; background: transparent; box-shadow: none; }
+  .activity-member-report > .card-header { border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); }
+  .activity-member-report .activity-filters { display: grid; grid-template-columns: 1fr 44px; }
+  .activity-member-report .search-field,
+  .activity-member-report .activity-filters select { grid-column: 1 / -1; width: 100%; }
+  .activity-member-report .activity-filters .icon-button { grid-column: 2; justify-self: end; }
+  .activity-filter-summary { margin-top: 10px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface-2); }
+  .activity-table-wrap { overflow: visible; }
+  .activity-table { display: block; min-width: 0; }
+  .activity-table thead { display: none; }
+  .activity-table tbody { display: grid; gap: 11px; margin-top: 11px; }
+  .activity-table tr { display: block; overflow: hidden; border: 1px solid var(--border); border-radius: 11px; background: var(--surface-2); }
+  .activity-table td { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 10px 13px; border-top: 1px solid var(--border); white-space: normal; text-align: right; }
+  .activity-table td:first-child { border-top: 0; }
+  .activity-table td::before { content: attr(data-label); color: var(--muted); font-size: .69rem; font-weight: 760; letter-spacing: .04em; text-transform: uppercase; text-align: left; }
+  .activity-table td strong, .activity-table td small { text-align: right; }
+  .activity-table .score-cell > span { display: none; }
+  .activity-table .activity-empty-row td { display: block; padding: 0; }
+  .activity-table .activity-empty-row td::before { content: none; }
+}
+@media (max-width: 420px) {
+  .alliance-stat-grid { grid-template-columns: 1fr !important; }
 }

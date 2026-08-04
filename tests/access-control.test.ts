@@ -19,7 +19,7 @@ test("only leadership roles can open Alliance Activity", () => {
 });
 
 test("Event Director-only operational pages stay restricted", () => {
-  const directorPages = ["/settings", "/predictions", "/events/import", "/events/new", "/events/event-id/edit"];
+  const directorPages = ["/settings", "/predictions", "/events/import", "/events/new", "/events/event-id/edit", "/activity/import"];
   directorPages.forEach((page) => {
     assert.equal(canAccessPage("event_director", page), true);
     assert.equal(canAccessPage("council", page), false);
