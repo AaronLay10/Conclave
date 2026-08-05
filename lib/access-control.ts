@@ -18,7 +18,6 @@ export function isAllianceLeadershipRole(role: AppRole) {
 
 const pageRules: Array<{ matches: (pathname: string) => boolean; roles: AppRole[] }> = [
   { matches: (path) => path === "/settings" || path.startsWith("/settings/"), roles: ["event_director"] },
-  { matches: (path) => path === "/predictions" || path.startsWith("/predictions/"), roles: ["event_director"] },
   { matches: (path) => path === "/events/import" || path.startsWith("/events/import/"), roles: ["event_director"] },
   { matches: (path) => path === "/events/new" || /\/events\/[^/]+\/edit(?:\/|$)/.test(path), roles: ["event_director"] },
   { matches: (path) => path === "/activity/import" || path.startsWith("/activity/import/"), roles: ["event_director"] },

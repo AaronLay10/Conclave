@@ -19,7 +19,7 @@ test("only leadership roles can open Alliance Activity", () => {
 });
 
 test("Event Director-only operational pages stay restricted", () => {
-  const directorPages = ["/settings", "/predictions", "/events/import", "/events/new", "/events/event-id/edit", "/activity/import"];
+  const directorPages = ["/settings", "/events/import", "/events/new", "/events/event-id/edit", "/activity/import"];
   directorPages.forEach((page) => {
     assert.equal(canAccessPage("event_director", page), true);
     assert.equal(canAccessPage("council", page), false);
@@ -28,6 +28,10 @@ test("Event Director-only operational pages stay restricted", () => {
     assert.equal(canAccessPage("alliance_r5", page), false);
     assert.equal(canAccessPage("viewer", page), false);
   });
+});
+
+test("retired standalone Predictions page is denied", () => {
+  assert.equal(canAccessPage("event_director", "/predictions"), false);
 });
 
 test("unknown pages default to denied", () => {

@@ -1,0 +1,222 @@
+.certaintyBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: -10px 0 14px;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendSwatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  border: 1px solid currentColor;
+}
+
+.verifiedSwatch { color: #56b883; background: rgba(86, 184, 131, .52); }
+.highSwatch { color: #62a7d8; background: rgba(98, 167, 216, .48); }
+.mediumHighSwatch { color: #d1a544; background: rgba(209, 165, 68, .46); }
+.mediumSwatch { color: #d98d4b; background: rgba(217, 141, 75, .48); }
+.leadershipSwatch { color: #9e83d7; background: rgba(158, 131, 215, .46); }
+.tbdSwatch { color: #9eabbb; background: rgba(158, 171, 187, .32); }
+
+.eventEntry {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.eventEntry.withAction {
+  grid-template-columns: minmax(0, 1fr) 27px;
+}
+
+.eventLink {
+  display: flex !important;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-top: 0 !important;
+  border-width: 1px 1px 1px 3px !important;
+  border-style: solid !important;
+}
+
+.eventText {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.certaintyMark {
+  flex: 0 0 auto;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 3px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 5px;
+  font-size: .56rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.verified {
+  color: #dff7e8 !important;
+  background: rgba(86, 184, 131, .18) !important;
+  border-color: rgba(86, 184, 131, .55) !important;
+  border-left-color: #56b883 !important;
+}
+
+.predictedHigh {
+  color: #dceffc !important;
+  background: rgba(98, 167, 216, .17) !important;
+  border-color: rgba(98, 167, 216, .52) !important;
+  border-left-color: #62a7d8 !important;
+  border-style: dashed !important;
+}
+
+.predictedMediumHigh {
+  color: #f7e9bd !important;
+  background: rgba(209, 165, 68, .15) !important;
+  border-color: rgba(209, 165, 68, .54) !important;
+  border-left-color: #d1a544 !important;
+  border-style: dashed !important;
+}
+
+.predictedMedium {
+  color: #f6d8bc !important;
+  background: rgba(217, 141, 75, .15) !important;
+  border-color: rgba(217, 141, 75, .55) !important;
+  border-left-color: #d98d4b !important;
+  border-style: dashed !important;
+}
+
+.predictedLow {
+  color: #f7c5c5 !important;
+  background: rgba(220, 107, 107, .14) !important;
+  border-color: rgba(220, 107, 107, .52) !important;
+  border-left-color: #dc6b6b !important;
+  border-style: dashed !important;
+}
+
+.predictedUnknown {
+  color: #d8dfe7 !important;
+  background: rgba(158, 171, 187, .11) !important;
+  border-color: rgba(158, 171, 187, .42) !important;
+  border-left-color: #9eabbb !important;
+  border-style: dashed !important;
+}
+
+.leadershipScheduled {
+  color: #e5dcf8 !important;
+  background: rgba(158, 131, 215, .14) !important;
+  border-color: rgba(158, 131, 215, .48) !important;
+  border-left-color: #9e83d7 !important;
+}
+
+.tbd {
+  color: #d1d8e0 !important;
+  background: rgba(158, 171, 187, .08) !important;
+  border-color: rgba(158, 171, 187, .32) !important;
+  border-left-color: #9eabbb !important;
+  opacity: .82;
+}
+
+.verifyButton {
+  width: 27px;
+  min-width: 27px;
+  height: 27px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  border: 1px solid rgba(86, 184, 131, .52);
+  border-radius: 6px;
+  background: rgba(86, 184, 131, .13);
+  color: #9de8b9;
+}
+
+.verifyButton:hover:not(:disabled) {
+  background: rgba(86, 184, 131, .24);
+  border-color: #56b883;
+}
+
+.verifyButton:disabled {
+  cursor: wait;
+  opacity: .58;
+}
+
+.verifyText { display: none; }
+
+@media (max-width: 900px) {
+  .certaintyBar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 760px) {
+  .certaintyBar {
+    margin-top: -4px;
+  }
+
+  .certaintyBar > button {
+    width: 100%;
+  }
+
+  .legend {
+    font-size: .84rem;
+  }
+
+  .eventEntry {
+    margin-top: 9px;
+  }
+
+  .eventEntry.withAction {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .eventLink {
+    padding: 10px 11px !important;
+    font-size: .92rem !important;
+  }
+
+  .eventText {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .certaintyMark {
+    min-width: 21px;
+    height: 21px;
+    font-size: .65rem;
+  }
+
+  .verifyButton {
+    width: auto;
+    min-width: 84px;
+    height: auto;
+    padding: 0 10px;
+    gap: 5px;
+    font-weight: 760;
+  }
+
+  .verifyText { display: inline; }
+}

@@ -7,7 +7,6 @@ import {
   BellRing,
   ChartNoAxesCombined,
   CalendarDays,
-  CalendarSearch,
   FileUp,
   FileText,
   LayoutDashboard,
@@ -20,7 +19,6 @@ import { canAccessPage, isAllianceLeadershipRole, roleLabels, type AppRole } fro
 const navItems = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/predictions", label: "Predictions", icon: CalendarSearch },
   { href: "/events", label: "Events", icon: ListChecks },
   { href: "/events/import", label: "Calendar Import", icon: FileUp },
   { href: "/activity", label: "Alliance Activity", icon: ChartNoAxesCombined },
