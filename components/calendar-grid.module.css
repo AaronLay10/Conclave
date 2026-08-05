@@ -1,8 +1,15 @@
+.certaintyBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: -10px 0 14px;
+}
+
 .legend {
   display: flex;
   flex-wrap: wrap;
   gap: 10px 16px;
-  margin: -10px 0 14px;
   color: var(--muted);
   font-size: .78rem;
 }
@@ -158,9 +165,23 @@
 
 .verifyText { display: none; }
 
+@media (max-width: 900px) {
+  .certaintyBar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 760px) {
-  .legend {
+  .certaintyBar {
     margin-top: -4px;
+  }
+
+  .certaintyBar > button {
+    width: 100%;
+  }
+
+  .legend {
     font-size: .84rem;
   }
 
@@ -190,7 +211,7 @@
 
   .verifyButton {
     width: auto;
-    min-width: 78px;
+    min-width: 84px;
     height: auto;
     padding: 0 10px;
     gap: 5px;
