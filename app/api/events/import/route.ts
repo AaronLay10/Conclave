@@ -44,7 +44,7 @@ const importedEventSchema = z.object({
 
 const importSchema = z.object({
   batch_name: z.string().min(3).max(120),
-  replace_existing: z.boolean().default(false),
+  replace_existing: z.boolean().optional(),
   events: z.array(importedEventSchema).min(1).max(100)
 }).superRefine((batch, context) => {
   const seen = new Set<string>();
@@ -146,21 +146,14 @@ export async function POST(request: Request) {
   }
 
   const existingKeys = new Set((existing ?? []).map((event) => event.import_key));
-  const candidates = parsed.data.replace_existing
-    ? parsed.data.events
-    : parsed.data.events.filter((event) => !existingKeys.has(event.import_key));
-
-  if (candidates.length === 0) {
-    return NextResponse.json({ inserted: 0, updated: 0, skipped: existingKeys.size });
-  }
-
   const ownerName =
     user.user_metadata?.full_name ??
     user.user_metadata?.name ??
     user.email?.split("@")[0] ??
     "Event Director";
   const importedAt = new Date().toISOString();
-  const rows = candidates.map((event) => {
+
+  const rows = parsed.data.events.map((event) => {
     const alliance = event.alliance_tag ? allianceByTag.get(event.alliance_tag) : undefined;
     return {
       kingdom_id: membership.kingdom_id,
@@ -175,7 +168,7 @@ export async function POST(request: Request) {
       description: optionalText(event.description),
       category: event.category.trim(),
       scope: event.scope,
-      status: "review",
+      status: event.certainty === "confirmed" ? "approved" : "review",
       certainty: event.certainty,
       start_at: event.start_at,
       end_at: event.end_at,
@@ -200,13 +193,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: importError.message }, { status: 400 });
   }
 
-  const updated = parsed.data.replace_existing
-    ? candidates.filter((event) => existingKeys.has(event.import_key)).length
-    : 0;
+  const updated = parsed.data.events.filter((event) => existingKeys.has(event.import_key)).length;
 
   return NextResponse.json({
-    inserted: candidates.length - updated,
+    inserted: parsed.data.events.length - updated,
     updated,
-    skipped: parsed.data.events.length - candidates.length
+    skipped: 0
   });
 }
