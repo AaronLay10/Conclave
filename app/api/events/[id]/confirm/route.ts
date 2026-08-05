@@ -34,19 +34,23 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     .maybeSingle();
   if (membershipError) return NextResponse.json({ error: membershipError.message }, { status: 400 });
   if (membership?.role !== "event_director") {
-    return NextResponse.json({ error: "Only an Event Director can confirm predictions." }, { status: 403 });
+    return NextResponse.json({ error: "Only an Event Director can approve predictions." }, { status: 403 });
   }
   if (event.certainty !== "predicted") {
-    return NextResponse.json({ error: "Only predicted events can be confirmed here." }, { status: 409 });
+    return NextResponse.json({ error: "Only predicted events can be approved here." }, { status: 409 });
   }
 
+  const approvedAt = new Date().toISOString();
   const { data: updated, error: updateError } = await supabase
     .from("events")
     .update({
       certainty: "confirmed",
+      status: "approved",
+      approved_by: user.id,
+      approved_at: approvedAt,
       source_details: {
         ...(event.source_details ?? {}),
-        confirmed_from_prediction_at: new Date().toISOString(),
+        confirmed_from_prediction_at: approvedAt,
         confirmed_by: user.id
       }
     })
