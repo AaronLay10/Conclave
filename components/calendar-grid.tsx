@@ -13,8 +13,17 @@ import {
   startOfWeek,
   subMonths
 } from "date-fns";
-import { Check, ChevronLeft, ChevronRight, LoaderCircle, RefreshCw } from "lucide-react";
-import { useMemo, useState } from "react";
+import {
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  LoaderCircle,
+  Pencil,
+  RefreshCw
+} from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import type { RokEvent } from "@/lib/types";
 import styles from "./calendar-grid.module.css";
 
@@ -74,17 +83,37 @@ function eventAppearance(event: RokEvent) {
 
 export function CalendarGrid({
   events,
-  canManagePredictions = false
+  canManageEvents = false
 }: {
   events: RokEvent[];
-  canManagePredictions?: boolean;
+  canManageEvents?: boolean;
 }) {
   const router = useRouter();
   const [month, setMonth] = useState(new Date(2026, 7, 1));
+  const [openEventId, setOpenEventId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    function closeOnOutsideClick(event: PointerEvent) {
+      const target = event.target;
+      if (target instanceof Element && target.closest("[data-calendar-event-menu]")) return;
+      setOpenEventId(null);
+    }
+
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpenEventId(null);
+    }
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
 
   const days = useMemo(() => {
     const start = startOfWeek(startOfMonth(month), { weekStartsOn: 0 });
@@ -103,6 +132,7 @@ export function CalendarGrid({
     setGenerating(true);
     setMessage(null);
     setError(null);
+    setOpenEventId(null);
 
     try {
       const response = await fetch("/api/events/predictions", {
@@ -136,6 +166,7 @@ export function CalendarGrid({
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error ?? "The prediction could not be approved.");
       setMessage(`${event.name} is now verified and approved.`);
+      setOpenEventId(null);
       router.refresh();
     } catch (verificationError) {
       setError(verificationError instanceof Error
@@ -161,7 +192,7 @@ export function CalendarGrid({
           <span><i className={`${styles.legendSwatch} ${styles.tbdSwatch}`} /> TBD</span>
         </div>
 
-        {canManagePredictions && (
+        {canManageEvents && (
           <button
             className="button"
             type="button"
@@ -177,11 +208,14 @@ export function CalendarGrid({
       {message && <div className="form-success" role="status">{message}</div>}
       {error && <div className="form-error" role="alert">{error}</div>}
 
-      <div className="card calendar-shell">
+      <div className={`card calendar-shell ${styles.calendarShell}`}>
         <div className="calendar-toolbar">
           <button
             className="icon-button"
-            onClick={() => setMonth(subMonths(month, 1))}
+            onClick={() => {
+              setOpenEventId(null);
+              setMonth(subMonths(month, 1));
+            }}
             aria-label="Previous month"
           >
             <ChevronLeft size={18} />
@@ -194,7 +228,10 @@ export function CalendarGrid({
           </div>
           <button
             className="icon-button"
-            onClick={() => setMonth(addMonths(month, 1))}
+            onClick={() => {
+              setOpenEventId(null);
+              setMonth(addMonths(month, 1));
+            }}
             aria-label="Next month"
           >
             <ChevronRight size={18} />
@@ -223,36 +260,72 @@ export function CalendarGrid({
                 const appearance = eventAppearance(event);
                 const isPredicted = event.certainty === "predicted";
                 const isConfirming = confirming === event.id;
-                const showApproval = isPredicted && canManagePredictions;
+                const isOpen = openEventId === event.id;
+                const menuId = `calendar-event-menu-${event.id}`;
 
                 return (
                   <div
-                    className={`${styles.eventEntry} ${showApproval ? styles.withAction : ""}`}
+                    className={styles.eventEntry}
+                    data-calendar-event-menu
                     key={event.id}
                   >
-                    <Link
-                      href={`/events/${event.id}`}
-                      className={`calendar-event ${event.scope} certainty-${event.certainty} ${styles.eventLink} ${appearance.className}`}
+                    <button
+                      type="button"
+                      className={`calendar-event ${event.scope} certainty-${event.certainty} ${styles.eventButton} ${appearance.className}`}
                       title={`${event.name} · ${appearance.label}`}
+                      aria-expanded={isOpen}
+                      aria-controls={menuId}
+                      onClick={() => setOpenEventId(isOpen ? null : event.id)}
                     >
                       <span className={styles.certaintyMark} aria-hidden="true">{appearance.mark}</span>
                       <span className={styles.eventText}>{utcTime(event.start_at)} {event.name}</span>
-                    </Link>
+                      <ChevronDown
+                        size={13}
+                        className={`${styles.dropdownChevron} ${isOpen ? styles.dropdownChevronOpen : ""}`}
+                        aria-hidden="true"
+                      />
+                    </button>
 
-                    {showApproval && (
-                      <button
-                        className={styles.verifyButton}
-                        type="button"
-                        onClick={() => verifyPrediction(event)}
-                        disabled={Boolean(confirming) || generating}
-                        aria-label={`Approve prediction for ${event.name}`}
-                        title={`Approve ${event.name} as verified`}
-                      >
-                        {isConfirming
-                          ? <LoaderCircle size={13} className="spin" />
-                          : <Check size={13} />}
-                        <span className={styles.verifyText}>{isConfirming ? "Approving…" : "Approve"}</span>
-                      </button>
+                    {isOpen && (
+                      <div className={styles.eventMenu} id={menuId} role="menu">
+                        <div className={styles.eventMenuHeader}>
+                          <strong>{event.name}</strong>
+                          <span>{appearance.label}</span>
+                        </div>
+
+                        {isPredicted && canManageEvents && (
+                          <button
+                            className={`${styles.menuAction} ${styles.approveAction}`}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => verifyPrediction(event)}
+                            disabled={Boolean(confirming) || generating}
+                          >
+                            {isConfirming
+                              ? <LoaderCircle size={15} className="spin" />
+                              : <Check size={15} />}
+                            {isConfirming ? "Approving…" : "Approve as verified"}
+                          </button>
+                        )}
+
+                        {canManageEvents && (
+                          <Link
+                            className={styles.menuAction}
+                            href={`/events/${event.id}/edit`}
+                            role="menuitem"
+                          >
+                            <Pencil size={15} /> Edit event
+                          </Link>
+                        )}
+
+                        <Link
+                          className={styles.menuAction}
+                          href={`/events/${event.id}`}
+                          role="menuitem"
+                        >
+                          <Eye size={15} /> View event details
+                        </Link>
+                      </div>
                     )}
                   </div>
                 );
