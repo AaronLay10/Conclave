@@ -16,7 +16,7 @@ export default async function CalendarPage() {
       <div className="page-header">
         <div>
           <h1>Kingdom Calendar</h1>
-          <p className="muted">Verified events, confidence-rated predictions, and inline approval in one calendar.</p>
+          <p className="muted">Click an event to approve predictions, edit the schedule, or view full details.</p>
         </div>
         <div className="actions">
           <Link className="button primary" href="/events/new"><Plus size={17} /> Create event</Link>
@@ -24,7 +24,7 @@ export default async function CalendarPage() {
       </div>
       <CalendarGrid
         events={events}
-        canManagePredictions={membership?.role === "event_director"}
+        canManageEvents={membership?.role === "event_director"}
       />
     </>
   );
