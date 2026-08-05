@@ -13,7 +13,7 @@ import {
   startOfWeek,
   subMonths
 } from "date-fns";
-import { Check, ChevronLeft, ChevronRight, LoaderCircle } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, LoaderCircle, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { RokEvent } from "@/lib/types";
 import styles from "./calendar-grid.module.css";
@@ -72,10 +72,17 @@ function eventAppearance(event: RokEvent) {
   return { className: styles.tbd, mark: "?", label: "TBD" };
 }
 
-export function CalendarGrid({ events }: { events: RokEvent[] }) {
+export function CalendarGrid({
+  events,
+  canManagePredictions = false
+}: {
+  events: RokEvent[];
+  canManagePredictions?: boolean;
+}) {
   const router = useRouter();
   const [month, setMonth] = useState(new Date(2026, 7, 1));
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -92,6 +99,33 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
     });
   }, [events, month]);
 
+  async function generatePredictions() {
+    setGenerating(true);
+    setMessage(null);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/events/predictions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ horizon_days: 90 })
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "Predictions could not be generated.");
+
+      setMessage(data.inserted > 0
+        ? `Added ${data.inserted} predictions through ${new Date(data.through).toISOString().slice(0, 10)}.`
+        : "The next 90 days are already covered; no duplicates were added.");
+      router.refresh();
+    } catch (generationError) {
+      setError(generationError instanceof Error
+        ? generationError.message
+        : "Predictions could not be generated.");
+    } finally {
+      setGenerating(false);
+    }
+  }
+
   async function verifyPrediction(event: RokEvent) {
     setConfirming(event.id);
     setMessage(null);
@@ -100,13 +134,13 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
     try {
       const response = await fetch(`/api/events/${event.id}/confirm`, { method: "POST" });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error ?? "The prediction could not be verified.");
-      setMessage(`${event.name} is now verified.`);
+      if (!response.ok) throw new Error(data.error ?? "The prediction could not be approved.");
+      setMessage(`${event.name} is now verified and approved.`);
       router.refresh();
     } catch (verificationError) {
       setError(verificationError instanceof Error
         ? verificationError.message
-        : "The prediction could not be verified.");
+        : "The prediction could not be approved.");
     } finally {
       setConfirming(null);
     }
@@ -117,13 +151,27 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
 
   return (
     <>
-      <div className={styles.legend} aria-label="Calendar certainty colors">
-        <span><i className={`${styles.legendSwatch} ${styles.verifiedSwatch}`} /> Verified</span>
-        <span><i className={`${styles.legendSwatch} ${styles.highSwatch}`} /> Predicted · High</span>
-        <span><i className={`${styles.legendSwatch} ${styles.mediumHighSwatch}`} /> Predicted · Medium-high</span>
-        <span><i className={`${styles.legendSwatch} ${styles.mediumSwatch}`} /> Predicted · Medium</span>
-        <span><i className={`${styles.legendSwatch} ${styles.leadershipSwatch}`} /> Leadership scheduled</span>
-        <span><i className={`${styles.legendSwatch} ${styles.tbdSwatch}`} /> TBD</span>
+      <div className={styles.certaintyBar}>
+        <div className={styles.legend} aria-label="Calendar certainty colors">
+          <span><i className={`${styles.legendSwatch} ${styles.verifiedSwatch}`} /> Verified</span>
+          <span><i className={`${styles.legendSwatch} ${styles.highSwatch}`} /> Predicted · High</span>
+          <span><i className={`${styles.legendSwatch} ${styles.mediumHighSwatch}`} /> Predicted · Medium-high</span>
+          <span><i className={`${styles.legendSwatch} ${styles.mediumSwatch}`} /> Predicted · Medium</span>
+          <span><i className={`${styles.legendSwatch} ${styles.leadershipSwatch}`} /> Leadership scheduled</span>
+          <span><i className={`${styles.legendSwatch} ${styles.tbdSwatch}`} /> TBD</span>
+        </div>
+
+        {canManagePredictions && (
+          <button
+            className="button"
+            type="button"
+            onClick={generatePredictions}
+            disabled={generating || Boolean(confirming)}
+          >
+            <RefreshCw size={16} className={generating ? "spin" : ""} />
+            {generating ? "Refreshing…" : "Refresh 90-day predictions"}
+          </button>
+        )}
       </div>
 
       {message && <div className="form-success" role="status">{message}</div>}
@@ -175,10 +223,11 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
                 const appearance = eventAppearance(event);
                 const isPredicted = event.certainty === "predicted";
                 const isConfirming = confirming === event.id;
+                const showApproval = isPredicted && canManagePredictions;
 
                 return (
                   <div
-                    className={`${styles.eventEntry} ${isPredicted ? styles.withAction : ""}`}
+                    className={`${styles.eventEntry} ${showApproval ? styles.withAction : ""}`}
                     key={event.id}
                   >
                     <Link
@@ -190,19 +239,19 @@ export function CalendarGrid({ events }: { events: RokEvent[] }) {
                       <span className={styles.eventText}>{utcTime(event.start_at)} {event.name}</span>
                     </Link>
 
-                    {isPredicted && (
+                    {showApproval && (
                       <button
                         className={styles.verifyButton}
                         type="button"
                         onClick={() => verifyPrediction(event)}
-                        disabled={Boolean(confirming)}
-                        aria-label={`Verify prediction for ${event.name}`}
+                        disabled={Boolean(confirming) || generating}
+                        aria-label={`Approve prediction for ${event.name}`}
                         title={`Approve ${event.name} as verified`}
                       >
                         {isConfirming
                           ? <LoaderCircle size={13} className="spin" />
                           : <Check size={13} />}
-                        <span className={styles.verifyText}>{isConfirming ? "Verifying…" : "Verify"}</span>
+                        <span className={styles.verifyText}>{isConfirming ? "Approving…" : "Approve"}</span>
                       </button>
                     )}
                   </div>
