@@ -32,12 +32,15 @@ function utcDateKey(value: string) {
 }
 
 function utcTime(value: string) {
+  const date = new Date(value);
+  if (date.getUTCHours() === 0 && date.getUTCMinutes() === 0) return null;
+
   return new Intl.DateTimeFormat("en-US", {
     timeZone: "UTC",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23"
-  }).format(new Date(value));
+  }).format(date);
 }
 
 type PredictionConfidence = "high" | "medium-high" | "medium" | "low" | "unknown";
@@ -182,6 +185,18 @@ export function CalendarGrid({
 
   return (
     <>
+      <style>{`
+        .calendar-event {
+          font-size: .66rem !important;
+        }
+
+        @media (max-width: 760px) {
+          .calendar-event {
+            font-size: .78rem !important;
+          }
+        }
+      `}</style>
+
       <div className={styles.certaintyBar}>
         <div className={styles.legend} aria-label="Calendar certainty colors">
           <span><i className={`${styles.legendSwatch} ${styles.verifiedSwatch}`} /> Verified</span>
@@ -262,6 +277,7 @@ export function CalendarGrid({
                 const isConfirming = confirming === event.id;
                 const isOpen = openEventId === event.id;
                 const menuId = `calendar-event-menu-${event.id}`;
+                const time = utcTime(event.start_at);
 
                 return (
                   <div
@@ -278,7 +294,7 @@ export function CalendarGrid({
                       onClick={() => setOpenEventId(isOpen ? null : event.id)}
                     >
                       <span className={styles.certaintyMark} aria-hidden="true">{appearance.mark}</span>
-                      <span className={styles.eventText}>{utcTime(event.start_at)} {event.name}</span>
+                      <span className={styles.eventText}>{time ? `${time} ` : ""}{event.name}</span>
                       <ChevronDown
                         size={13}
                         className={`${styles.dropdownChevron} ${isOpen ? styles.dropdownChevronOpen : ""}`}
