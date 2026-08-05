@@ -5,6 +5,142 @@
   min-height: 0;
 }
 
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(4, 7, 12, .72);
+  backdrop-filter: blur(4px);
+}
+
+.dayPanel {
+  width: min(560px, 100%);
+  max-height: min(76vh, 720px);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+}
+
+.dayPanelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dayPanelHeader strong,
+.dayPanelHeader span {
+  display: block;
+}
+
+.dayPanelHeader span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+.dayPanelHeader button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.panelError {
+  margin: 12px 14px 0;
+  padding: 9px 10px;
+  border: 1px solid rgba(220, 107, 107, .45);
+  border-radius: 8px;
+  background: rgba(220, 107, 107, .09);
+  color: #f3a0a0;
+  font-size: .78rem;
+}
+
+.dayEventList {
+  max-height: calc(min(76vh, 720px) - 68px);
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.dayEvent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dayEvent:last-child {
+  border-bottom: 0;
+}
+
+.dayEventInfo {
+  min-width: 0;
+}
+
+.dayEventInfo strong,
+.dayEventInfo span {
+  display: block;
+}
+
+.dayEventInfo strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dayEventInfo span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: .72rem;
+  text-transform: capitalize;
+}
+
+.dayEventActions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 7px;
+}
+
+.dayEventActions a,
+.dayEventActions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.dayEventActions button {
+  color: #9de8b9;
+  border-color: rgba(86, 184, 131, .45);
+  background: rgba(86, 184, 131, .1);
+}
+
+.dayEventActions button:disabled {
+  cursor: wait;
+  opacity: .58;
+}
+
 @media (min-width: 761px) {
   .guard :global(.calendar-day) {
     position: relative;
@@ -50,7 +186,57 @@
 
   .guard :global(.calendar-day-overflow) {
     margin-top: 2px !important;
-    font-size: .6rem !important;
+    padding: 3px 4px;
+    border-radius: 5px;
+    color: var(--gold-soft) !important;
+    font-size: .62rem !important;
+    font-weight: 760;
     line-height: 1 !important;
+    cursor: pointer;
+  }
+
+  .guard :global(.calendar-day-overflow:hover),
+  .guard :global(.calendar-day-overflow:focus-visible) {
+    background: rgba(209, 165, 68, .12);
+    outline: 1px solid rgba(209, 165, 68, .42);
+  }
+}
+
+@media (max-width: 760px) {
+  .backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .dayPanel {
+    width: 100%;
+    max-height: 82vh;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .dayEvent {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .dayEventActions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .dayEventActions a,
+  .dayEventActions button {
+    flex: 1 1 auto;
+  }
+
+  .guard :global(.calendar-day-overflow) {
+    display: inline-block;
+    margin-top: 7px !important;
+    padding: 5px 7px;
+    border: 1px solid rgba(209, 165, 68, .35);
+    border-radius: 7px;
+    color: var(--gold-soft) !important;
+    cursor: pointer;
   }
 }
