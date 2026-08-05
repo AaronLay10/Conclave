@@ -174,7 +174,7 @@
 }
 
 .calendarShell :global(.calendar-day:nth-child(7n)) .eventMenu,
-.calendarShell :global(.calendar-day:nth-child(7n - 1)) .eventMenu {
+.calendarShell :global(.calendar-day:nth-child(7n-1)) .eventMenu {
   right: 0;
   left: auto;
 }
