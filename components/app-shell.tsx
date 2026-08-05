@@ -10,7 +10,6 @@ import {
   FileUp,
   FileText,
   LayoutDashboard,
-  ListChecks,
   Settings,
   WandSparkles
 } from "lucide-react";
@@ -19,7 +18,6 @@ import { canAccessPage, isAllianceLeadershipRole, roleLabels, type AppRole } fro
 const navItems = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/events", label: "Events", icon: ListChecks },
   { href: "/events/import", label: "Calendar Import", icon: FileUp },
   { href: "/activity", label: "Alliance Activity", icon: ChartNoAxesCombined },
   { href: "/activity/import", label: "Activity Import", icon: FileUp },
@@ -51,9 +49,12 @@ export function AppShell({
     : "/branding/conclave-favicon.png";
   const allianceIdentity = allianceName && allianceTag ? `${allianceName} [${allianceTag}]` : "Your alliance";
   const visibleNavItems = navItems.filter(({ href }) => canAccessPage(role, href));
-  const activeHref = [...visibleNavItems]
+  const directActiveHref = [...visibleNavItems]
     .sort((left, right) => right.href.length - left.href.length)
     .find(({ href }) => pathname === href || pathname.startsWith(`${href}/`))?.href;
+  const activeHref = pathname.startsWith("/events/") && !pathname.startsWith("/events/import")
+    ? "/calendar"
+    : directActiveHref;
 
   return (
     <div className={`app-layout ${themeClass}`}>
