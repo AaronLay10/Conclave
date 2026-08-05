@@ -1,0 +1,59 @@
+.page {
+  height: calc(100dvh - 125px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  flex: 0 0 auto;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.header h1 {
+  margin-bottom: .2rem;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+}
+
+.header p {
+  margin-bottom: 0;
+  font-size: .82rem;
+}
+
+.calendarArea {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.calendarArea > :last-child {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (max-width: 760px) {
+  .page {
+    height: auto;
+    min-height: 0;
+    display: block;
+  }
+
+  .header {
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .header h1 {
+    font-size: 1.65rem;
+  }
+
+  .header p {
+    font-size: .9rem;
+  }
+
+  .calendarArea {
+    display: block;
+  }
+}

@@ -1,33 +1,68 @@
 .calendarShell {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
   overflow: visible !important;
+}
+
+.calendarShell :global(.calendar-toolbar),
+.calendarShell :global(.calendar-weekdays) {
+  flex: 0 0 auto;
+}
+
+.calendarShell :global(.calendar-toolbar) {
+  padding: 9px 12px;
+}
+
+.calendarShell :global(.calendar-weekday) {
+  padding: 7px 8px;
+  font-size: .68rem;
+}
+
+.calendarShell :global(.calendar-grid) {
+  flex: 1 1 auto;
+  min-height: 0;
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.calendarShell :global(.calendar-day) {
+  min-height: 0;
+  padding: 5px 6px;
+}
+
+.calendarShell :global(.calendar-date) {
+  margin-bottom: 3px;
+  font-size: .7rem;
 }
 
 .certaintyBar {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  margin: -10px 0 14px;
+  gap: 10px;
+  margin: -4px 0 9px;
 }
 
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 6px 12px;
   color: var(--muted);
-  font-size: .78rem;
+  font-size: .7rem;
 }
 
 .legend span {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .legendSwatch {
-  width: 10px;
-  height: 10px;
-  border-radius: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
   border: 1px solid currentColor;
 }
 
@@ -40,20 +75,23 @@
 
 .eventEntry {
   position: relative;
-  margin-top: 5px;
+  margin-top: 3px;
 }
 
 .eventButton {
   width: 100%;
+  min-width: 0;
+  min-height: 20px;
   display: flex !important;
   align-items: center;
-  gap: 5px;
-  min-width: 0;
+  gap: 4px;
   margin-top: 0 !important;
+  padding: 2px 4px !important;
   border-width: 1px 1px 1px 3px !important;
   border-style: solid !important;
   color: inherit;
   font: inherit;
+  line-height: 1.1;
   text-align: left;
 }
 
@@ -75,14 +113,14 @@
 
 .certaintyMark {
   flex: 0 0 auto;
-  min-width: 17px;
-  height: 17px;
-  padding: 0 3px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 2px;
   display: inline-grid;
   place-items: center;
   border: 1px solid currentColor;
-  border-radius: 5px;
-  font-size: .56rem;
+  border-radius: 4px;
+  font-size: .47rem;
   font-weight: 850;
   line-height: 1;
 }
@@ -243,6 +281,25 @@
 }
 
 @media (max-width: 760px) {
+  .calendarShell {
+    display: block;
+    min-height: auto;
+  }
+
+  .calendarShell :global(.calendar-grid) {
+    display: grid;
+    grid-auto-rows: auto;
+  }
+
+  .calendarShell :global(.calendar-day) {
+    min-height: 0;
+    padding: 13px 14px;
+  }
+
+  .calendarShell :global(.calendar-toolbar) {
+    padding: 14px;
+  }
+
   .certaintyBar {
     margin-top: -4px;
   }
@@ -252,16 +309,17 @@
   }
 
   .legend {
-    font-size: .84rem;
+    font-size: .78rem;
   }
 
   .eventEntry {
-    margin-top: 9px;
+    margin-top: 7px;
   }
 
   .eventButton {
-    padding: 10px 11px !important;
-    font-size: .92rem !important;
+    min-height: 0;
+    padding: 8px 9px !important;
+    font-size: .78rem !important;
   }
 
   .eventText {
@@ -270,9 +328,9 @@
   }
 
   .certaintyMark {
-    min-width: 21px;
-    height: 21px;
-    font-size: .65rem;
+    min-width: 18px;
+    height: 18px;
+    font-size: .58rem;
   }
 
   .eventMenu {

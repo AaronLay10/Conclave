@@ -27,6 +27,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { RokEvent } from "@/lib/types";
 import styles from "./calendar-grid.module.css";
 
+const DAY_MS = 86_400_000;
+
 function utcDateKey(value: string) {
   return value.slice(0, 10);
 }
@@ -41,6 +43,15 @@ function utcTime(value: string) {
     minute: "2-digit",
     hourCycle: "h23"
   }).format(date);
+}
+
+function eventOccursOnDay(event: RokEvent, dayKey: string) {
+  const dayStart = Date.parse(`${dayKey}T00:00:00Z`);
+  const dayEnd = dayStart + DAY_MS;
+  const eventStart = Date.parse(event.start_at);
+  const eventEnd = Date.parse(event.end_at);
+
+  return eventStart < dayEnd && eventEnd > dayStart;
 }
 
 type PredictionConfidence = "high" | "medium-high" | "medium" | "low" | "unknown";
@@ -126,7 +137,11 @@ export function CalendarGrid({
       return {
         day,
         dayKey,
-        dayEvents: events.filter((event) => utcDateKey(event.start_at) === dayKey)
+        dayEvents: events
+          .filter((event) => eventOccursOnDay(event, dayKey))
+          .sort((left, right) =>
+            left.start_at.localeCompare(right.start_at) || left.name.localeCompare(right.name)
+          )
       };
     });
   }, [events, month]);
@@ -275,23 +290,25 @@ export function CalendarGrid({
                 const appearance = eventAppearance(event);
                 const isPredicted = event.certainty === "predicted";
                 const isConfirming = confirming === event.id;
-                const isOpen = openEventId === event.id;
-                const menuId = `calendar-event-menu-${event.id}`;
-                const time = utcTime(event.start_at);
+                const eventInstanceId = `${event.id}:${dayKey}`;
+                const isOpen = openEventId === eventInstanceId;
+                const menuId = `calendar-event-menu-${event.id}-${dayKey}`;
+                const startsToday = utcDateKey(event.start_at) === dayKey;
+                const time = startsToday ? utcTime(event.start_at) : null;
 
                 return (
                   <div
                     className={styles.eventEntry}
                     data-calendar-event-menu
-                    key={event.id}
+                    key={eventInstanceId}
                   >
                     <button
                       type="button"
                       className={`calendar-event ${event.scope} certainty-${event.certainty} ${styles.eventButton} ${appearance.className}`}
-                      title={`${event.name} · ${appearance.label}`}
+                      title={`${event.name} · ${appearance.label}${startsToday ? "" : " · ongoing"}`}
                       aria-expanded={isOpen}
                       aria-controls={menuId}
-                      onClick={() => setOpenEventId(isOpen ? null : event.id)}
+                      onClick={() => setOpenEventId(isOpen ? null : eventInstanceId)}
                     >
                       <span className={styles.certaintyMark} aria-hidden="true">{appearance.mark}</span>
                       <span className={styles.eventText}>{time ? `${time} ` : ""}{event.name}</span>
@@ -306,7 +323,7 @@ export function CalendarGrid({
                       <div className={styles.eventMenu} id={menuId} role="menu">
                         <div className={styles.eventMenuHeader}>
                           <strong>{event.name}</strong>
-                          <span>{appearance.label}</span>
+                          <span>{appearance.label}{startsToday ? "" : " · Ongoing event"}</span>
                         </div>
 
                         {isPredicted && canManageEvents && (
