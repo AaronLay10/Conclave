@@ -55,13 +55,15 @@ type ImportBatch = z.infer<typeof importBatchSchema>;
 
 const starterBatch: ImportBatch = {
   batch_name: "Kingdom 4126 — August 2026 in-game calendar",
-  replace_existing: false,
+  replace_existing: true,
   events: []
 };
 
 function displayUtc(value: string) {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+  return Number.isNaN(date.getTime())
+    ? value
+    : `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
 }
 
 function formatValidationError(error: z.ZodError) {
@@ -74,7 +76,6 @@ function formatValidationError(error: z.ZodError) {
 
 export function CalendarImporter() {
   const [raw, setRaw] = useState(JSON.stringify(starterBatch, null, 2));
-  const [replaceExisting, setReplaceExisting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<string | null>(null);
@@ -85,10 +86,7 @@ export function CalendarImporter() {
       const validated = importBatchSchema.safeParse(json);
 
       if (!validated.success) {
-        return {
-          value: null,
-          error: formatValidationError(validated.error)
-        };
+        return { value: null, error: formatValidationError(validated.error) };
       }
 
       return { value: validated.data, error: null };
@@ -117,7 +115,7 @@ export function CalendarImporter() {
       const response = await fetch("/api/events/import", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...parsed.value, replace_existing: replaceExisting })
+        body: JSON.stringify({ ...parsed.value, replace_existing: true })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "The import failed.");
@@ -142,8 +140,8 @@ export function CalendarImporter() {
           <div className="import-guidance">
             <CheckCircle2 size={18} />
             <div>
-              <strong>Safe by default</strong>
-              <p>All imported events enter Leadership Review. UTC timestamps must end in <span className="code">Z</span>, and stable import keys prevent duplicates.</p>
+              <strong>Matching events always update</strong>
+              <p>Stable import keys prevent duplicates. A new screenshot import replaces matching event dates, certainty, and source details automatically.</p>
             </div>
           </div>
 
@@ -168,18 +166,6 @@ export function CalendarImporter() {
             />
           </div>
 
-          <label className="import-replace">
-            <input
-              type="checkbox"
-              checked={replaceExisting}
-              onChange={(event) => setReplaceExisting(event.target.checked)}
-            />
-            <span>
-              <strong>Replace matching imports</strong>
-              <small>Leave off to preserve edits made after an earlier import.</small>
-            </span>
-          </label>
-
           {parsed.error && <div className="form-error">{parsed.error}</div>}
           {error && <div className="form-error">{error}</div>}
           {result && <div className="form-success">{result}</div>}
@@ -194,7 +180,7 @@ export function CalendarImporter() {
             disabled={submitting || Boolean(parsed.error) || events.length === 0}
             onClick={importEvents}
           >
-            <Upload size={17} /> {submitting ? "Importing…" : "Import reviewed events"}
+            <Upload size={17} /> {submitting ? "Updating…" : "Update calendar events"}
           </button>
         </div>
         {events.length === 0 ? (
