@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { CalendarGrid } from "@/components/calendar-grid";
+import { CalendarGridContained } from "@/components/calendar-grid-contained";
 import { DemoBanner } from "@/components/demo-banner";
 import { getCurrentMembership, getEvents } from "@/lib/data";
 import styles from "./calendar-page.module.css";
@@ -24,7 +24,7 @@ export default async function CalendarPage() {
         </div>
       </div>
       <div className={styles.calendarArea}>
-        <CalendarGrid
+        <CalendarGridContained
           events={events}
           canManageEvents={membership?.role === "event_director"}
         />

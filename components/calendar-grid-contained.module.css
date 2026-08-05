@@ -1,0 +1,56 @@
+.guard {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+@media (min-width: 761px) {
+  .guard :global(.calendar-day) {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .guard :global(.calendar-day:has([aria-expanded="true"])) {
+    overflow: visible;
+    z-index: 30;
+  }
+
+  .guard :global([data-calendar-event-menu]) {
+    max-width: 100%;
+    margin-top: 2px !important;
+  }
+
+  .guard :global(.calendar-event) {
+    width: 100%;
+    max-width: 100%;
+    min-height: 17px !important;
+    padding: 1px 3px !important;
+    line-height: 1 !important;
+  }
+
+  .guard :global(.calendar-event > span:first-child) {
+    min-width: 12px !important;
+    height: 12px !important;
+    padding-inline: 1px !important;
+    font-size: .42rem !important;
+  }
+
+  .guard :global(.calendar-event > span:nth-child(2)) {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .guard :global(.calendar-date) {
+    margin-bottom: 2px !important;
+  }
+
+  .guard :global(.calendar-day-overflow) {
+    margin-top: 2px !important;
+    font-size: .6rem !important;
+    line-height: 1 !important;
+  }
+}
