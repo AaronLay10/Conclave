@@ -2,23 +2,58 @@
 
 import { useMemo, useState } from "react";
 import { AlertTriangle, CheckCircle2, FileJson, Upload } from "lucide-react";
+import { z } from "zod";
 
-type PreviewEvent = {
-  import_key: string;
-  name: string;
-  certainty: "confirmed" | "predicted" | "leadership_scheduled" | "tbd";
-  start_at: string;
-  end_at: string;
-  source_ref: string;
-};
+const certaintySchema = z.enum([
+  "confirmed",
+  "predicted",
+  "leadership_scheduled",
+  "tbd"
+]);
 
-type ImportBatch = {
-  batch_name: string;
-  replace_existing?: boolean;
-  events: PreviewEvent[];
-};
+const utcTimestamp = z.string().datetime({ offset: true }).refine(
+  (value) => value.endsWith("Z"),
+  "Use an explicit UTC timestamp ending in Z."
+);
 
-const starterBatch = {
+const previewEventSchema = z.object({
+  import_key: z.string().min(3).max(180).regex(/^[a-z0-9][a-z0-9._:-]*$/),
+  name: z.string().min(3).max(120),
+  category: z.string().min(2).max(80),
+  scope: z.enum(["kingdom", "alliance"]),
+  alliance_tag: z.string().min(1).max(20).optional(),
+  certainty: certaintySchema,
+  start_at: utcTimestamp,
+  end_at: utcTimestamp,
+  source_ref: z.string().min(1).max(500)
+}).passthrough().superRefine((event, context) => {
+  if (Date.parse(event.end_at) <= Date.parse(event.start_at)) {
+    context.addIssue({
+      code: "custom",
+      path: ["end_at"],
+      message: "End time must be after start time."
+    });
+  }
+
+  if (event.scope === "alliance" && !event.alliance_tag) {
+    context.addIssue({
+      code: "custom",
+      path: ["alliance_tag"],
+      message: "Alliance events require alliance_tag."
+    });
+  }
+});
+
+const importBatchSchema = z.object({
+  batch_name: z.string().min(3).max(120),
+  replace_existing: z.boolean().optional(),
+  events: z.array(previewEventSchema).min(1).max(100)
+});
+
+type PreviewEvent = z.infer<typeof previewEventSchema>;
+type ImportBatch = z.infer<typeof importBatchSchema>;
+
+const starterBatch: ImportBatch = {
   batch_name: "Kingdom 4126 — August 2026 in-game calendar",
   replace_existing: false,
   events: []
@@ -27,6 +62,14 @@ const starterBatch = {
 function displayUtc(value: string) {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : `${date.toISOString().slice(0, 16).replace("T", " ")} UTC`;
+}
+
+function formatValidationError(error: z.ZodError) {
+  const issue = error.issues[0];
+  if (!issue) return "Invalid calendar import file.";
+
+  const path = issue.path.length > 0 ? `${issue.path.join(".")}: ` : "";
+  return `${path}${issue.message}`;
 }
 
 export function CalendarImporter() {
@@ -38,9 +81,17 @@ export function CalendarImporter() {
 
   const parsed = useMemo(() => {
     try {
-      const value = JSON.parse(raw) as ImportBatch;
-      if (!value || !Array.isArray(value.events)) throw new Error("The file needs an events array.");
-      return { value, error: null };
+      const json = JSON.parse(raw);
+      const validated = importBatchSchema.safeParse(json);
+
+      if (!validated.success) {
+        return {
+          value: null,
+          error: formatValidationError(validated.error)
+        };
+      }
+
+      return { value: validated.data, error: null };
     } catch (parseError) {
       return {
         value: null,
@@ -78,7 +129,7 @@ export function CalendarImporter() {
     }
   }
 
-  const events = parsed.value?.events ?? [];
+  const events: PreviewEvent[] = parsed.value?.events ?? [];
 
   return (
     <div className="stack">
