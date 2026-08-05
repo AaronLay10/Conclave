@@ -1,3 +1,7 @@
+.calendarShell {
+  overflow: visible !important;
+}
+
 .certaintyBar {
   display: flex;
   align-items: center;
@@ -35,17 +39,12 @@
 .tbdSwatch { color: #9eabbb; background: rgba(158, 171, 187, .32); }
 
 .eventEntry {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 4px;
+  position: relative;
   margin-top: 5px;
 }
 
-.eventEntry.withAction {
-  grid-template-columns: minmax(0, 1fr) 27px;
-}
-
-.eventLink {
+.eventButton {
+  width: 100%;
   display: flex !important;
   align-items: center;
   gap: 5px;
@@ -53,6 +52,18 @@
   margin-top: 0 !important;
   border-width: 1px 1px 1px 3px !important;
   border-style: solid !important;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+
+.eventButton:hover {
+  filter: brightness(1.13);
+}
+
+.eventButton:focus-visible {
+  outline: 2px solid var(--gold-soft);
+  outline-offset: 2px;
 }
 
 .eventText {
@@ -74,6 +85,16 @@
   font-size: .56rem;
   font-weight: 850;
   line-height: 1;
+}
+
+.dropdownChevron {
+  flex: 0 0 auto;
+  margin-left: auto;
+  transition: transform .15s ease;
+}
+
+.dropdownChevronOpen {
+  transform: rotate(180deg);
 }
 
 .verified {
@@ -138,32 +159,81 @@
   opacity: .82;
 }
 
-.verifyButton {
-  width: 27px;
-  min-width: 27px;
-  height: 27px;
-  padding: 0;
-  display: inline-flex;
+.eventMenu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 100;
+  width: max(100%, 220px);
+  padding: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: #111a27;
+  box-shadow: 0 18px 38px rgba(0, 0, 0, .48);
+}
+
+.calendarShell :global(.calendar-day:nth-child(7n)) .eventMenu,
+.calendarShell :global(.calendar-day:nth-child(7n - 1)) .eventMenu {
+  right: 0;
+  left: auto;
+}
+
+.eventMenuHeader {
+  display: grid;
+  gap: 3px;
+  padding: 8px 9px 9px;
+  border-bottom: 1px solid var(--border);
+}
+
+.eventMenuHeader strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: .78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.eventMenuHeader span {
+  color: var(--muted);
+  font-size: .67rem;
+}
+
+.menuAction {
+  width: 100%;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  align-self: stretch;
-  border: 1px solid rgba(86, 184, 131, .52);
-  border-radius: 6px;
-  background: rgba(86, 184, 131, .13);
-  color: #9de8b9;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 9px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text);
+  font-size: .76rem;
+  font-weight: 680;
+  text-align: left;
 }
 
-.verifyButton:hover:not(:disabled) {
-  background: rgba(86, 184, 131, .24);
-  border-color: #56b883;
+.menuAction:hover:not(:disabled),
+.menuAction:focus-visible {
+  background: var(--surface-3);
+  outline: none;
 }
 
-.verifyButton:disabled {
+.menuAction:disabled {
   cursor: wait;
   opacity: .58;
 }
 
-.verifyText { display: none; }
+.approveAction {
+  color: #9de8b9;
+}
+
+.approveAction:hover:not(:disabled),
+.approveAction:focus-visible {
+  background: rgba(86, 184, 131, .15);
+}
 
 @media (max-width: 900px) {
   .certaintyBar {
@@ -189,11 +259,7 @@
     margin-top: 9px;
   }
 
-  .eventEntry.withAction {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .eventLink {
+  .eventButton {
     padding: 10px 11px !important;
     font-size: .92rem !important;
   }
@@ -209,14 +275,23 @@
     font-size: .65rem;
   }
 
-  .verifyButton {
-    width: auto;
-    min-width: 84px;
-    height: auto;
-    padding: 0 10px;
-    gap: 5px;
-    font-weight: 760;
+  .eventMenu {
+    position: static;
+    width: 100%;
+    margin-top: 6px;
+    box-shadow: none;
   }
 
-  .verifyText { display: inline; }
+  .eventMenuHeader strong {
+    font-size: .9rem;
+  }
+
+  .eventMenuHeader span,
+  .menuAction {
+    font-size: .84rem;
+  }
+
+  .menuAction {
+    padding: 11px;
+  }
 }
