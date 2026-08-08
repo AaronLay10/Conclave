@@ -61,18 +61,6 @@ export const KINGDOM_4126_RULES: PredictionRule[] = [
     anchorSource: "Derived from the confirmed Kingdom 4126 MGE rotation"
   },
   {
-    key: "ark-registration",
-    name: "Ark of Osiris — Registration",
-    category: "Alliance Event",
-    anchorStartAt: "2026-08-05T00:00:00Z",
-    intervalDays: 14,
-    durationDays: 3,
-    confidence: "medium_high",
-    description: "Ark registration window; this is not the leadership-selected match time.",
-    preparation: "Leadership should verify registration, battlefield, roster, and match-time options.",
-    anchorSource: "Kingdom 4126 in-game registration countdown captured 2026-08-03"
-  },
-  {
     key: "esmeralda",
     name: "Esmeralda's Prayer",
     category: "Equipment Event",
@@ -102,7 +90,6 @@ function normalizeName(name: string) {
   const value = name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
   if (value.includes("mightiest governor")) return "mightiest-governor";
   if (value.includes("wheel of fortune")) return "wheel-of-fortune";
-  if (value.includes("ark of osiris") && value.includes("registration")) return "ark-registration";
   if (value.includes("esmeralda")) return "esmeralda";
   if (value.includes("hunt for history") || value.includes("egg event")) return "hunt-for-history";
   return value.replaceAll(" ", "-");
