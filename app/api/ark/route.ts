@@ -13,6 +13,14 @@ const assignmentSchema = z.object({
   confirmed: z.boolean()
 });
 
+const availabilitySchema = z.object({
+  governor_id: z.string().min(1).max(30),
+  governor_name: z.string().min(1).max(120),
+  team_1_available: z.boolean().nullable(),
+  team_2_available: z.boolean().nullable(),
+  team_3_available: z.boolean().nullable()
+});
+
 const teamSchema = z.object({
   team_number: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   battle_time: z.string(),
@@ -23,15 +31,14 @@ const teamSchema = z.object({
 const planSchema = z.object({
   ark_date: z.iso.date(),
   source_import_id: z.string().uuid(),
-  teams: z.array(teamSchema).length(3)
+  teams: z.array(teamSchema).length(3),
+  availability: z.array(availabilitySchema).max(1000)
 }).superRefine((value, context) => {
   const teamNumbers = new Set(value.teams.map((team) => team.team_number));
   if (teamNumbers.size !== 3) context.addIssue({ code: "custom", path: ["teams"], message: "Teams 1, 2, and 3 are required." });
   const governorIds = new Set<string>();
   value.teams.forEach((team, teamIndex) => team.assignments.forEach((assignment, assignmentIndex) => {
-    if (governorIds.has(assignment.governor_id)) {
-      context.addIssue({ code: "custom", path: ["teams", teamIndex, "assignments", assignmentIndex], message: `${assignment.governor_name} is assigned more than once.` });
-    }
+    if (governorIds.has(assignment.governor_id)) context.addIssue({ code: "custom", path: ["teams", teamIndex, "assignments", assignmentIndex], message: `${assignment.governor_name} is assigned more than once.` });
     governorIds.add(assignment.governor_id);
   }));
 });
@@ -90,13 +97,7 @@ export async function POST(request: Request) {
     const { error } = await supabase.from("ark_cycles").update({ source_import_id: sourceImport.id, updated_at: new Date().toISOString() }).eq("id", cycleId);
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   } else {
-    const { data: cycle, error } = await supabase.from("ark_cycles").insert({
-      kingdom_id: membership.kingdom_id,
-      alliance_id: targetAllianceId,
-      source_import_id: sourceImport.id,
-      ark_date: parsed.data.ark_date,
-      created_by: user.id
-    }).select("id").single();
+    const { data: cycle, error } = await supabase.from("ark_cycles").insert({ kingdom_id: membership.kingdom_id, alliance_id: targetAllianceId, source_import_id: sourceImport.id, ark_date: parsed.data.ark_date, created_by: user.id }).select("id").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     cycleId = cycle.id;
   }
@@ -112,13 +113,7 @@ export async function POST(request: Request) {
   for (const team of parsed.data.teams) {
     const battleTime = team.battle_time ? new Date(`${team.battle_time}:00Z`).toISOString() : null;
     const captain = team.assignments.find((assignment) => assignment.role === "captain")?.governor_id ?? null;
-    const { data: savedTeam, error: teamError } = await supabase.from("ark_teams").insert({
-      cycle_id: cycleId,
-      team_number: team.team_number,
-      battle_time: battleTime,
-      check_in_minutes: team.check_in_minutes,
-      captain_governor_id: captain
-    }).select("id").single();
+    const { data: savedTeam, error: teamError } = await supabase.from("ark_teams").insert({ cycle_id: cycleId, team_number: team.team_number, battle_time: battleTime, check_in_minutes: team.check_in_minutes, captain_governor_id: captain }).select("id").single();
     if (teamError) return NextResponse.json({ error: teamError.message }, { status: 400 });
 
     if (team.assignments.length) {
@@ -128,14 +123,21 @@ export async function POST(request: Request) {
     }
   }
 
+  const { error: clearAvailabilityError } = await supabase.from("ark_availability").delete().eq("cycle_id", cycleId);
+  if (clearAvailabilityError) return NextResponse.json({ error: clearAvailabilityError.message }, { status: 400 });
+  if (parsed.data.availability.length) {
+    const { error: availabilityError } = await supabase.from("ark_availability").insert(parsed.data.availability.map((row) => ({ cycle_id: cycleId, ...row })));
+    if (availabilityError) return NextResponse.json({ error: availabilityError.message }, { status: 400 });
+  }
+
   await supabase.from("audit_logs").insert({
     kingdom_id: membership.kingdom_id,
     actor_id: user.id,
     entity_type: "ark_cycle",
     entity_id: cycleId,
     action: existingCycle ? "updated" : "created",
-    metadata: { alliance_id: targetAllianceId, ark_date: parsed.data.ark_date, assignments: assignmentCount, source_import_id: sourceImport.id }
+    metadata: { alliance_id: targetAllianceId, ark_date: parsed.data.ark_date, assignments: assignmentCount, availability_records: parsed.data.availability.length, source_import_id: sourceImport.id }
   });
 
-  return NextResponse.json({ cycle_id: cycleId, assignments: assignmentCount });
+  return NextResponse.json({ cycle_id: cycleId, assignments: assignmentCount, availability: parsed.data.availability.length });
 }
