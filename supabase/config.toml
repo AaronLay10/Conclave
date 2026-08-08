@@ -25,3 +25,6 @@ verify_jwt = false
 
 [functions.publish-discord]
 verify_jwt = false
+
+[functions.publish-ark-signup]
+verify_jwt = false

@@ -58,6 +58,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname === "/access-denied" ||
     request.nextUrl.pathname === "/manifest.webmanifest" ||
     request.nextUrl.pathname.startsWith("/auth/") ||
+    request.nextUrl.pathname.startsWith("/ark/respond/") ||
+    request.nextUrl.pathname === "/api/ark/respond" ||
     request.nextUrl.pathname === "/api/health";
 
   if (isAuthenticated && !isPublicPath) {
