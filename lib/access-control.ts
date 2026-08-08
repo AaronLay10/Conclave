@@ -22,6 +22,7 @@ const pageRules: Array<{ matches: (pathname: string) => boolean; roles: AppRole[
   { matches: (path) => path === "/events/new" || /\/events\/[^/]+\/edit(?:\/|$)/.test(path), roles: ["event_director"] },
   { matches: (path) => path === "/activity/import" || path.startsWith("/activity/import/"), roles: ["event_director"] },
   { matches: (path) => path === "/activity" || path.startsWith("/activity/"), roles: leadershipRoles },
+  { matches: (path) => path === "/ark" || path.startsWith("/ark/"), roles: leadershipRoles },
   { matches: (path) => path === "/announcements" || path.startsWith("/announcements/"), roles: leadershipRoles },
   { matches: (path) => path === "/templates" || path.startsWith("/templates/"), roles: ["event_director", "council"] },
   { matches: (path) => path === "/dashboard" || path.startsWith("/dashboard/"), roles: allRoles },
