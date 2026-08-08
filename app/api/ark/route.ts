@@ -58,25 +58,32 @@ export async function POST(request: Request) {
     .limit(1)
     .maybeSingle();
   if (membershipError) return NextResponse.json({ error: membershipError.message }, { status: 400 });
-  if (!membership?.alliance_id || !["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5"].includes(membership.role)) {
+  if (!membership || !["event_director", "council", "alliance_lead", "alliance_r4", "alliance_r5"].includes(membership.role)) {
     return NextResponse.json({ error: "Alliance leadership access is required." }, { status: 403 });
   }
 
   const { data: sourceImport, error: sourceError } = await supabase
     .from("activity_imports")
-    .select("id, alliance_id")
+    .select("id, alliance_id, kingdom_id")
     .eq("id", parsed.data.source_import_id)
-    .eq("alliance_id", membership.alliance_id)
+    .eq("kingdom_id", membership.kingdom_id)
     .maybeSingle();
   if (sourceError) return NextResponse.json({ error: sourceError.message }, { status: 400 });
-  if (!sourceImport) return NextResponse.json({ error: "The selected Hero Scrolls import is not available for this alliance." }, { status: 400 });
+  if (!sourceImport) return NextResponse.json({ error: "The selected Hero Scrolls import is not available in this kingdom." }, { status: 400 });
 
-  const { data: existingCycle } = await supabase
+  const isKingdomLeadership = membership.role === "event_director" || membership.role === "council";
+  if (!isKingdomLeadership && membership.alliance_id !== sourceImport.alliance_id) {
+    return NextResponse.json({ error: "You can only manage Ark for your own alliance." }, { status: 403 });
+  }
+  const targetAllianceId = sourceImport.alliance_id;
+
+  const { data: existingCycle, error: existingCycleError } = await supabase
     .from("ark_cycles")
     .select("id")
-    .eq("alliance_id", membership.alliance_id)
+    .eq("alliance_id", targetAllianceId)
     .eq("ark_date", parsed.data.ark_date)
     .maybeSingle();
+  if (existingCycleError) return NextResponse.json({ error: existingCycleError.message }, { status: 400 });
 
   let cycleId = existingCycle?.id as string | undefined;
   if (cycleId) {
@@ -85,7 +92,7 @@ export async function POST(request: Request) {
   } else {
     const { data: cycle, error } = await supabase.from("ark_cycles").insert({
       kingdom_id: membership.kingdom_id,
-      alliance_id: membership.alliance_id,
+      alliance_id: targetAllianceId,
       source_import_id: sourceImport.id,
       ark_date: parsed.data.ark_date,
       created_by: user.id
@@ -127,7 +134,7 @@ export async function POST(request: Request) {
     entity_type: "ark_cycle",
     entity_id: cycleId,
     action: existingCycle ? "updated" : "created",
-    metadata: { ark_date: parsed.data.ark_date, assignments: assignmentCount, source_import_id: sourceImport.id }
+    metadata: { alliance_id: targetAllianceId, ark_date: parsed.data.ark_date, assignments: assignmentCount, source_import_id: sourceImport.id }
   });
 
   return NextResponse.json({ cycle_id: cycleId, assignments: assignmentCount });
