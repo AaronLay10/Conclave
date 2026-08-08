@@ -273,6 +273,15 @@
   background: rgba(86, 184, 131, .15);
 }
 
+.deleteAction {
+  color: #f2aaaa;
+}
+
+.deleteAction:hover:not(:disabled),
+.deleteAction:focus-visible {
+  background: rgba(220, 107, 107, .14);
+}
+
 @media (max-width: 900px) {
   .certaintyBar {
     align-items: flex-start;

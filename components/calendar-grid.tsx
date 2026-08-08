@@ -21,7 +21,8 @@ import {
   Eye,
   LoaderCircle,
   Pencil,
-  RefreshCw
+  RefreshCw,
+  Trash2
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { RokEvent } from "@/lib/types";
@@ -106,6 +107,7 @@ export function CalendarGrid({
   const [month, setMonth] = useState(new Date(2026, 7, 1));
   const [openEventId, setOpenEventId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +197,29 @@ export function CalendarGrid({
     }
   }
 
+  async function removeEvent(event: RokEvent) {
+    const confirmed = window.confirm(
+      `Remove “${event.name}” from the calendar?\n\nThis permanently deletes the event and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(event.id);
+    setMessage(null);
+    setError(null);
+    try {
+      const response = await fetch(`/api/events/${event.id}`, { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "The event could not be removed.");
+      setMessage(`${event.name} was removed from the calendar.`);
+      setOpenEventId(null);
+      router.refresh();
+    } catch (removalError) {
+      setError(removalError instanceof Error ? removalError.message : "The event could not be removed.");
+    } finally {
+      setDeleting(null);
+    }
+  }
+
   const todayUtc = new Date().toISOString().slice(0, 10);
   const visibleEvents = days.some((entry) => entry.dayEvents.length > 0);
 
@@ -227,7 +252,7 @@ export function CalendarGrid({
             className="button"
             type="button"
             onClick={generatePredictions}
-            disabled={generating || Boolean(confirming)}
+            disabled={generating || Boolean(confirming) || Boolean(deleting)}
           >
             <RefreshCw size={16} className={generating ? "spin" : ""} />
             {generating ? "Refreshing…" : "Refresh 90-day predictions"}
@@ -332,7 +357,7 @@ export function CalendarGrid({
                             type="button"
                             role="menuitem"
                             onClick={() => verifyPrediction(event)}
-                            disabled={Boolean(confirming) || generating}
+                            disabled={Boolean(confirming) || Boolean(deleting) || generating}
                           >
                             {isConfirming
                               ? <LoaderCircle size={15} className="spin" />
@@ -349,6 +374,21 @@ export function CalendarGrid({
                           >
                             <Pencil size={15} /> Edit event
                           </Link>
+                        )}
+
+                        {canManageEvents && (
+                          <button
+                            className={`${styles.menuAction} ${styles.deleteAction}`}
+                            type="button"
+                            role="menuitem"
+                            onClick={() => removeEvent(event)}
+                            disabled={Boolean(deleting) || Boolean(confirming) || generating}
+                          >
+                            {deleting === event.id
+                              ? <LoaderCircle size={15} className="spin" />
+                              : <Trash2 size={15} />}
+                            {deleting === event.id ? "Removing…" : "Remove event"}
+                          </button>
                         )}
 
                         <Link

@@ -77,6 +77,7 @@ export function CalendarGridContained({
   const guardRef = useRef<HTMLDivElement>(null);
   const [selectedDay, setSelectedDay] = useState<SelectedDay | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const selectedEvents = useMemo(() => {
@@ -162,6 +163,27 @@ export function CalendarGridContained({
     }
   }
 
+  async function removeEvent(event: RokEvent) {
+    const confirmed = window.confirm(
+      `Remove “${event.name}” from the calendar?\n\nThis permanently deletes the event and cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setDeleting(event.id);
+    setError(null);
+    try {
+      const response = await fetch(`/api/events/${event.id}`, { method: "DELETE" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? "The event could not be removed.");
+      setSelectedDay(null);
+      router.refresh();
+    } catch (removalError) {
+      setError(removalError instanceof Error ? removalError.message : "The event could not be removed.");
+    } finally {
+      setDeleting(null);
+    }
+  }
+
   return (
     <div
       className={styles.guard}
@@ -202,12 +224,22 @@ export function CalendarGridContained({
                       <button
                         type="button"
                         onClick={() => approve(event)}
-                        disabled={confirming !== null}
+                        disabled={confirming !== null || deleting !== null}
                       >
                         {confirming === event.id ? "Approving…" : "Approve"}
                       </button>
                     )}
                     {canManageEvents && <Link href={`/events/${event.id}/edit`}>Edit</Link>}
+                    {canManageEvents && (
+                      <button
+                        className={styles.removeButton}
+                        type="button"
+                        onClick={() => removeEvent(event)}
+                        disabled={confirming !== null || deleting !== null}
+                      >
+                        {deleting === event.id ? "Removing…" : "Remove"}
+                      </button>
+                    )}
                     <Link href={`/events/${event.id}`}>View details</Link>
                   </div>
                 </article>

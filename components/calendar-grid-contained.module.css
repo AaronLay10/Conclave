@@ -141,6 +141,12 @@
   opacity: .58;
 }
 
+.dayEventActions .removeButton {
+  color: #f2aaaa;
+  border-color: rgba(220, 107, 107, .45);
+  background: rgba(220, 107, 107, .1);
+}
+
 @media (min-width: 761px) {
   .guard :global(.calendar-day) {
     position: relative;
