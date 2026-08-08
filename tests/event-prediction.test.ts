@@ -18,6 +18,7 @@ test("generates repeatable Kingdom 4126 events inside the rolling window", () =>
     && event.start_at === "2026-08-11T00:00:00.000Z"
   ));
   assert.equal(predictions.some((event) => event.name.includes("Ark of Osiris")), false);
+  assert.equal(predictions.some((event) => event.name === "Hunt for History"), false);
   assert.ok(predictions.every((event) => event.certainty === "predicted"));
 });
 

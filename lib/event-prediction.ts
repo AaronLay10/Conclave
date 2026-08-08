@@ -71,18 +71,6 @@ export const KINGDOM_4126_RULES: PredictionRule[] = [
     description: "Equipment event commonly aligned with the Mightiest Governor week.",
     preparation: "Verify availability and rewards in-game before spending gems or materials.",
     anchorSource: "Aligned to the Kingdom 4126 MGE anchor"
-  },
-  {
-    key: "hunt-for-history",
-    name: "Hunt for History",
-    category: "Equipment Event",
-    anchorStartAt: "2026-08-07T00:00:00Z",
-    intervalDays: 14,
-    durationDays: 2,
-    confidence: "medium",
-    description: "Equipment egg event predicted for the alternate Ark rotation week.",
-    preparation: "Verify the event in-game before spending gems or hammers.",
-    anchorSource: "Aligned to the Kingdom 4126 Ark rotation"
   }
 ];
 
@@ -91,7 +79,6 @@ function normalizeName(name: string) {
   if (value.includes("mightiest governor")) return "mightiest-governor";
   if (value.includes("wheel of fortune")) return "wheel-of-fortune";
   if (value.includes("esmeralda")) return "esmeralda";
-  if (value.includes("hunt for history") || value.includes("egg event")) return "hunt-for-history";
   return value.replaceAll(" ", "-");
 }
 

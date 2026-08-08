@@ -99,9 +99,10 @@ file format.
 
 Event Directors can open **Predictions** to generate a 90-day rolling window for
 repeatable Kingdom 4126 rotations. The engine currently covers Mightiest
-Governor, Wheel of Fortune, Esmeralda's Prayer, and Hunt for History. Ark of
-Osiris is scheduled by alliance leadership rather than generated as a separate
-event window. Generated events always enter Leadership Review as **Predicted**.
+Governor, Wheel of Fortune, and Esmeralda's Prayer. Ark of Osiris is scheduled
+by alliance leadership rather than generated as a separate event window, and
+Hunt for History remains manual until it is confirmed in-game. Generated events
+always enter Leadership Review as **Predicted**.
 
 The generator compares stable prediction identities plus same-event overlapping
 dates. Existing confirmed, leadership-scheduled, TBD, or already-predicted
