@@ -14,6 +14,7 @@ const GREEN = "#176B3A";
 const BLUE = "#1E5F8A";
 const ORANGE = "#963F00";
 const BODY_SIZE = 18;
+const CONTINUING_BODY_SIZE = 16;
 
 function utcDay(value: string) {
   return new Date(`${value}T00:00:00Z`);
@@ -67,6 +68,46 @@ function actionSummary(event: RokEvent) {
   return "Open the in-game event page and follow the listed instructions.";
 }
 
+function normalizedText(value: string) {
+  return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+function newEventInstructions(event: RokEvent) {
+  const parts = [
+    actionSummary(event),
+    event.preparation ? withoutCityHallRequirements(event.preparation) : "",
+    event.rules ? withoutCityHallRequirements(event.rules) : "",
+    event.description ? withoutCityHallRequirements(event.description) : ""
+  ]
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const unique: string[] = [];
+  const seen = new Set<string>();
+
+  for (const part of parts) {
+    const key = normalizedText(part);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(part);
+    if (unique.length === 3) break;
+  }
+
+  return unique.join(" ");
+}
+
+function isNewEventForDay(event: RokEvent, reportStart: Date) {
+  const reportEnd = new Date(reportStart.getTime() + DAY_MS);
+  const eventStart = new Date(event.start_at);
+  return eventStart >= reportStart && eventStart < reportEnd;
+}
+
+function defaultMailText(event: RokEvent, reportStart: Date) {
+  return isNewEventForDay(event, reportStart)
+    ? newEventInstructions(event)
+    : actionSummary(event);
+}
+
 function isPublicWorkflow(event: RokEvent) {
   return ["review", "approved", "published", "active", "completed"].includes(event.status);
 }
@@ -100,6 +141,8 @@ function composeMail({
   schedulingMarkerIds: string[];
 }) {
   const start = utcDay(reportDate);
+  const newEvents = activeEvents.filter((event) => isNewEventForDay(event, start));
+  const continuingEvents = activeEvents.filter((event) => !isNewEventForDay(event, start));
 
   const lines = [
     heading(`K4126 DAILY EVENT UPDATE — ${dateLabel(start)}`, GOLD, 34),
@@ -107,16 +150,34 @@ function composeMail({
     ""
   ];
 
-  lines.push(heading("ACTIVE EVENTS", GREEN));
-  if (activeEvents.length === 0) lines.push("No events selected for today's mail.");
-  for (const event of activeEvents) {
-    const marker = schedulingMarkerIds.includes(event.id) ? ` <color=${ORANGE}>*</color>` : "";
-    const summary = safeMailText(summaryOverrides[event.id] ?? actionSummary(event));
-    lines.push(
-      `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
-      `<size=${BODY_SIZE}>${summary}</size>`,
-      ""
-    );
+  if (activeEvents.length === 0) {
+    lines.push("No events selected for today's mail.");
+  }
+
+  if (newEvents.length > 0) {
+    lines.push(heading("NEW EVENTS", GREEN));
+    for (const event of newEvents) {
+      const marker = schedulingMarkerIds.includes(event.id) ? ` <color=${ORANGE}>*</color>` : "";
+      const instructions = safeMailText(summaryOverrides[event.id] ?? newEventInstructions(event));
+      lines.push(
+        `<size=23><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
+        `<size=${BODY_SIZE}>${instructions}</size>`,
+        ""
+      );
+    }
+  }
+
+  if (continuingEvents.length > 0) {
+    lines.push(heading("CONTINUING EVENTS", BLUE));
+    for (const event of continuingEvents) {
+      const marker = schedulingMarkerIds.includes(event.id) ? ` <color=${ORANGE}>*</color>` : "";
+      const summary = safeMailText(summaryOverrides[event.id] ?? actionSummary(event));
+      lines.push(
+        `<size=21><b>${safeMailText(event.name.toUpperCase())}</b>${marker} — <color=${GREEN}>${daysLeftLabel(event, start)}</color></size>`,
+        `<size=${CONTINUING_BODY_SIZE}>${summary}</size>`,
+        ""
+      );
+    }
   }
 
   const hasSchedulingMarker = activeEvents.some((event) => schedulingMarkerIds.includes(event.id));
@@ -140,6 +201,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
     [events, reportDate, includeTentative]
   );
   const selectedEvents = activeEvents.filter((event) => !excludedIds.includes(event.id));
+  const reportStart = utcDay(reportDate);
   const mail = useMemo(
     () => composeMail({
       activeEvents: selectedEvents,
@@ -196,7 +258,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
         <div>
           <div className="row"><Mail size={18} /><strong>Daily member mail</strong></div>
           <div className="muted" style={{ fontSize: ".76rem", marginTop: 4 }}>
-            Assembled from live Conclave events
+            New events get full instructions; continuing events get a short action summary.
           </div>
         </div>
         <div className="actions">
@@ -241,6 +303,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
           <div className="stack">
             {activeEvents.map((event) => {
               const selected = !excludedIds.includes(event.id);
+              const isNew = isNewEventForDay(event, reportStart);
               return (
                 <div className={`mail-event-editor ${selected ? "selected" : ""}`} key={event.id}>
                   <label className="mail-event-select">
@@ -251,7 +314,7 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
                     />
                     <span>
                       <strong>{event.name}</strong>
-                      <small>{daysLeftLabel(event, utcDay(reportDate))}</small>
+                      <small>{isNew ? "NEW EVENT" : "CONTINUING"} • {daysLeftLabel(event, reportStart)}</small>
                     </span>
                   </label>
                   {selected && (
@@ -268,11 +331,13 @@ export function DailyMailGenerator({ events }: { events: RokEvent[] }) {
                         </span>
                       </label>
                       <div className="field">
-                        <label htmlFor={`mail-summary-${event.id}`}>Member action summary</label>
+                        <label htmlFor={`mail-summary-${event.id}`}>
+                          {isNew ? "First-day member instructions" : "Continuing-event summary"}
+                        </label>
                         <textarea
                           id={`mail-summary-${event.id}`}
-                          value={summaryOverrides[event.id] ?? actionSummary(event)}
-                          maxLength={500}
+                          value={summaryOverrides[event.id] ?? defaultMailText(event, reportStart)}
+                          maxLength={700}
                           onChange={(input) => setSummaryOverrides((current) => ({
                             ...current,
                             [event.id]: input.target.value
