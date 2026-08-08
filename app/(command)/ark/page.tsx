@@ -16,7 +16,7 @@ export default async function ArkPage() {
     const supabase = await createClient();
     const { data: cycle } = await supabase
       .from("ark_cycles")
-      .select("id, ark_date, title, status, source_import_id, ark_teams(id, team_number, battle_time, check_in_minutes, captain_governor_id, notes, ark_assignments(*))")
+      .select("id, ark_date, title, status, source_import_id, ark_teams(id, team_number, battle_time, check_in_minutes, captain_governor_id, notes, ark_assignments(*)), ark_availability(*)")
       .eq("alliance_id", targetAllianceId)
       .order("ark_date", { ascending: false })
       .limit(1)
@@ -30,7 +30,7 @@ export default async function ArkPage() {
       <div className="page-header">
         <div>
           <h1>Ark of Osiris</h1>
-          <p className="muted">Build three 30-player teams from the latest Hero Scrolls roster, set match times, and generate alliance mail.</p>
+          <p className="muted">Build three 30-player teams from the latest Hero Scrolls roster, collect availability, balance teams, and generate alliance mail.</p>
         </div>
       </div>
       <ArkManager
