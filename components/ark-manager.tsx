@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, Check, Clipboard, Save, Search, Shield, Shuffle, Swords, Users, X } from "lucide-react";
+import { AlertTriangle, Check, Clipboard, Link as LinkIcon, RefreshCw, Save, Search, Send, Shield, Shuffle, Swords, Users, X } from "lucide-react";
 import type { ActivityMemberScore } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
 import styles from "./ark-manager.module.css";
 
 type ArkRole = "captain" | "rally" | "garrison" | "field" | "ark_runner" | "flex";
@@ -36,7 +37,11 @@ type TeamState = {
 };
 
 type SavedPlan = {
+  id?: string;
   ark_date?: string;
+  signup_token?: string;
+  signup_open?: boolean;
+  signup_published_at?: string | null;
   ark_teams?: Array<{
     team_number: TeamNumber;
     battle_time: string | null;
@@ -103,12 +108,18 @@ export function ArkManager({ allianceTag, sourceImportId, sourceLabel, members, 
   const [selectedTeam, setSelectedTeam] = useState<TeamNumber>(1);
   const [status, setStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [publishing, setPublishing] = useState(false);
   const [mailTeam, setMailTeam] = useState<TeamNumber>(1);
+  const [cycleId, setCycleId] = useState<string | null>(plan?.id ?? null);
+  const [signupToken, setSignupToken] = useState<string | null>(plan?.signup_token ?? null);
+  const [signupOpen, setSignupOpen] = useState(Boolean(plan?.signup_open));
 
   const assignedIds = useMemo(() => new Set(teams.flatMap((team) => team.assignments.map((member) => member.governor_id))), [teams]);
   const filteredUnassigned = useMemo(() => members.filter((member) => !assignedIds.has(member.governor_id) && member.governor_name.toLowerCase().includes(search.toLowerCase())), [members, assignedIds, search]);
   const totalAssigned = teams.reduce((sum, team) => sum + team.assignments.length, 0);
   const conflictCount = teams.reduce((sum, team) => sum + team.assignments.filter((member) => availability[member.governor_id]?.[availabilityKey(team.team_number)] === false).length, 0);
+  const responseCount = Object.values(availability).filter((row) => teamNumbers.some((team) => row[availabilityKey(team)] !== null)).length;
+  const allTimesSet = teams.every((team) => Boolean(team.battle_time));
 
   function getAvailability(member: ActivityMemberScore | Assignment, team: TeamNumber): AvailabilityValue {
     return availability[member.governor_id]?.[availabilityKey(team)] ?? null;
@@ -178,24 +189,66 @@ export function ArkManager({ allianceTag, sourceImportId, sourceLabel, members, 
     setStatus(`Auto-balanced ${assigned} players across 3 teams${skipped ? ` · ${skipped} unavailable/skipped` : ""}. Review roles before saving.`);
   }
 
+  async function persistPlan() {
+    if (!arkDate || !sourceImportId) throw new Error("Set the Ark date and load a Hero Scrolls roster first.");
+    const response = await fetch("/api/ark", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ark_date: arkDate, source_import_id: sourceImportId, teams, availability: Object.values(availability) })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error ?? "Unable to save Ark plan.");
+    setCycleId(data.cycle_id);
+    setSignupToken(data.signup_token ?? null);
+    setSignupOpen(Boolean(data.signup_open));
+    return data;
+  }
+
   async function save() {
     setSaving(true);
     setStatus(null);
     try {
-      const availabilityRows = Object.values(availability);
-      const response = await fetch("/api/ark", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ark_date: arkDate, source_import_id: sourceImportId, teams, availability: availabilityRows })
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Unable to save Ark plan.");
+      const data = await persistPlan();
       setStatus(`Saved ${data.assignments} assignments and ${data.availability} availability records.`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Unable to save Ark plan.");
     } finally {
       setSaving(false);
     }
+  }
+
+  async function publishSignup() {
+    if (!allTimesSet) {
+      setStatus("Set all three Ark battle times before publishing availability.");
+      return;
+    }
+    setPublishing(true);
+    setStatus(null);
+    try {
+      const saved = await persistPlan();
+      const supabase = createClient();
+      const { data, error } = await supabase.functions.invoke("publish-ark-signup", {
+        body: { cycleId: saved.cycle_id, baseUrl: window.location.origin }
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setSignupOpen(true);
+      if (data?.signupUrl) {
+        const token = String(data.signupUrl).split("/").pop() ?? null;
+        if (token) setSignupToken(token);
+      }
+      setStatus(`Ark availability published to Discord. ${responseCount}/${members.length} responses currently recorded.`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Unable to publish Ark availability.");
+    } finally {
+      setPublishing(false);
+    }
+  }
+
+  async function copySignupLink() {
+    if (!signupToken) return;
+    await navigator.clipboard.writeText(`${window.location.origin}/ark/respond/${signupToken}`);
+    setStatus("Ark signup link copied.");
   }
 
   const activeMailTeam = teams.find((team) => team.team_number === mailTeam)!;
@@ -223,6 +276,20 @@ export function ArkManager({ allianceTag, sourceImportId, sourceLabel, members, 
         {teams.map((team) => <div key={team.team_number}><Swords size={18} /><strong>Team {team.team_number}</strong><span>{team.assignments.length}/30</span></div>)}
         <div><Users size={18} /><strong>Assigned</strong><span>{totalAssigned}/90</span></div>
         {conflictCount > 0 && <div className={styles.conflictSummary}><AlertTriangle size={18} /><strong>Conflicts</strong><span>{conflictCount}</span></div>}
+      </section>
+
+      <section className={styles.mailCard}>
+        <div className={styles.mailHeader}>
+          <div><strong>Member Availability Signup</strong><span>{responseCount}/{members.length} responses · {signupOpen ? "Signup OPEN" : "Not published"}</span></div>
+          <div className="row">
+            <button className="button" type="button" onClick={() => window.location.reload()}><RefreshCw size={16} /> Refresh Responses</button>
+            {signupToken && <button className="button" type="button" onClick={copySignupLink}><LinkIcon size={16} /> Copy Link</button>}
+            <button className="button primary" type="button" onClick={publishSignup} disabled={publishing || !arkDate || !sourceImportId || !allTimesSet}>
+              <Send size={16} /> {publishing ? "Publishing…" : signupOpen ? "Republish to Discord" : "Publish to Discord"}
+            </button>
+          </div>
+        </div>
+        <div className="muted" style={{ fontSize: ".82rem" }}>Publishing saves the current Ark plan first. Discord shows all three times in each member’s local timezone and links to the tokenized Conclave response form.</div>
       </section>
 
       <section className={styles.builder}>
