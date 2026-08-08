@@ -11,6 +11,7 @@ import {
   FileText,
   LayoutDashboard,
   Settings,
+  Swords,
   WandSparkles
 } from "lucide-react";
 import { canAccessPage, isAllianceLeadershipRole, roleLabels, type AppRole } from "@/lib/access-control";
@@ -18,6 +19,7 @@ import { canAccessPage, isAllianceLeadershipRole, roleLabels, type AppRole } fro
 const navItems = [
   { href: "/dashboard", label: "Command Center", icon: LayoutDashboard },
   { href: "/calendar", label: "Calendar", icon: CalendarDays },
+  { href: "/ark", label: "Ark of Osiris", icon: Swords },
   { href: "/events/import", label: "Calendar Import", icon: FileUp },
   { href: "/activity", label: "Alliance Activity", icon: ChartNoAxesCombined },
   { href: "/activity/import", label: "Activity Import", icon: FileUp },
