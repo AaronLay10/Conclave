@@ -54,9 +54,46 @@ type PreviewEvent = z.infer<typeof previewEventSchema>;
 type ImportBatch = z.infer<typeof importBatchSchema>;
 
 const starterBatch: ImportBatch = {
-  batch_name: "Kingdom 4126 — August 2026 in-game calendar",
+  batch_name: "Kingdom 4126 — KvK1 projected milestones",
   replace_existing: true,
-  events: []
+  events: [
+    {
+      import_key: "k4126-kvk1-pre-kvk",
+      name: "Pre-KvK 1 — Eve of the Crusade",
+      category: "KvK",
+      scope: "kingdom",
+      certainty: "predicted",
+      start_at: "2026-09-17T00:00:00Z",
+      end_at: "2026-09-23T00:00:00Z",
+      description: "Projected start of Kingdom 4126's first Eve of the Crusade. This six-day pre-KvK event leads directly into the Lost Kingdom.",
+      preparation: "Save Action Points for Marauders, prepare troop-training speedups, and coordinate kingdom participation before the event begins.",
+      rules: "Eve of the Crusade is divided into three scoring stages: Marauders, troop training, and Marauder Encampments. Kingdom ranking buffs carry into the Lost Kingdom.",
+      source_ref: "Projected KvK1 milestone — replace with official in-game date when announced.",
+      source_details: {
+        milestone: "pre_kvk1",
+        projection: true,
+        official_date_required: true
+      }
+    },
+    {
+      import_key: "k4126-kvk1-lost-kingdom-opens",
+      name: "KvK1 — Lost Kingdom Opens",
+      category: "KvK",
+      scope: "kingdom",
+      certainty: "predicted",
+      start_at: "2026-09-23T00:00:00Z",
+      end_at: "2026-09-24T00:00:00Z",
+      description: "Projected opening day of Kingdom 4126's first Lost Kingdom season.",
+      preparation: "Be ready to enter with your assigned alliance and follow kingdom leadership instructions for teleport locations, territory development, honor farming, and pass progression.",
+      rules: "Do not independently place territory, relocate outside the kingdom plan, or engage enemy kingdoms contrary to kingdom leadership instructions.",
+      source_ref: "Projected KvK1 opening — replace with official in-game date when announced.",
+      source_details: {
+        milestone: "kvk1_opens",
+        projection: true,
+        official_date_required: true
+      }
+    }
+  ]
 };
 
 function displayUtc(value: string) {
@@ -142,6 +179,14 @@ export function CalendarImporter() {
             <div>
               <strong>Matching events always update</strong>
               <p>Stable import keys prevent duplicates. A new screenshot import replaces matching event dates, certainty, and source details automatically.</p>
+            </div>
+          </div>
+
+          <div className="import-guidance">
+            <AlertTriangle size={18} />
+            <div>
+              <strong>KvK1 milestones are projected</strong>
+              <p>The starter import includes projected Pre-KvK and Lost Kingdom opening dates. Import official in-game dates later with the same keys to replace them automatically.</p>
             </div>
           </div>
 
