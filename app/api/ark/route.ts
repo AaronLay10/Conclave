@@ -86,20 +86,26 @@ export async function POST(request: Request) {
 
   const { data: existingCycle, error: existingCycleError } = await supabase
     .from("ark_cycles")
-    .select("id")
+    .select("id, signup_token, signup_open")
     .eq("alliance_id", targetAllianceId)
     .eq("ark_date", parsed.data.ark_date)
     .maybeSingle();
   if (existingCycleError) return NextResponse.json({ error: existingCycleError.message }, { status: 400 });
 
   let cycleId = existingCycle?.id as string | undefined;
+  let signupToken = existingCycle?.signup_token as string | undefined;
+  let signupOpen = Boolean(existingCycle?.signup_open);
   if (cycleId) {
-    const { error } = await supabase.from("ark_cycles").update({ source_import_id: sourceImport.id, updated_at: new Date().toISOString() }).eq("id", cycleId);
+    const { data: updatedCycle, error } = await supabase.from("ark_cycles").update({ source_import_id: sourceImport.id, updated_at: new Date().toISOString() }).eq("id", cycleId).select("signup_token, signup_open").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+    signupToken = updatedCycle.signup_token;
+    signupOpen = Boolean(updatedCycle.signup_open);
   } else {
-    const { data: cycle, error } = await supabase.from("ark_cycles").insert({ kingdom_id: membership.kingdom_id, alliance_id: targetAllianceId, source_import_id: sourceImport.id, ark_date: parsed.data.ark_date, created_by: user.id }).select("id").single();
+    const { data: cycle, error } = await supabase.from("ark_cycles").insert({ kingdom_id: membership.kingdom_id, alliance_id: targetAllianceId, source_import_id: sourceImport.id, ark_date: parsed.data.ark_date, created_by: user.id }).select("id, signup_token, signup_open").single();
     if (error) return NextResponse.json({ error: error.message }, { status: 400 });
     cycleId = cycle.id;
+    signupToken = cycle.signup_token;
+    signupOpen = Boolean(cycle.signup_open);
   }
 
   const { data: oldTeams, error: oldTeamError } = await supabase.from("ark_teams").select("id").eq("cycle_id", cycleId);
@@ -123,10 +129,11 @@ export async function POST(request: Request) {
     }
   }
 
-  const { error: clearAvailabilityError } = await supabase.from("ark_availability").delete().eq("cycle_id", cycleId);
-  if (clearAvailabilityError) return NextResponse.json({ error: clearAvailabilityError.message }, { status: 400 });
   if (parsed.data.availability.length) {
-    const { error: availabilityError } = await supabase.from("ark_availability").insert(parsed.data.availability.map((row) => ({ cycle_id: cycleId, ...row })));
+    const { error: availabilityError } = await supabase.from("ark_availability").upsert(
+      parsed.data.availability.map((row) => ({ cycle_id: cycleId, ...row, updated_at: new Date().toISOString() })),
+      { onConflict: "cycle_id,governor_id" }
+    );
     if (availabilityError) return NextResponse.json({ error: availabilityError.message }, { status: 400 });
   }
 
@@ -139,5 +146,11 @@ export async function POST(request: Request) {
     metadata: { alliance_id: targetAllianceId, ark_date: parsed.data.ark_date, assignments: assignmentCount, availability_records: parsed.data.availability.length, source_import_id: sourceImport.id }
   });
 
-  return NextResponse.json({ cycle_id: cycleId, assignments: assignmentCount, availability: parsed.data.availability.length });
+  return NextResponse.json({
+    cycle_id: cycleId,
+    assignments: assignmentCount,
+    availability: parsed.data.availability.length,
+    signup_token: signupToken,
+    signup_open: signupOpen
+  });
 }
