@@ -10,13 +10,14 @@ export default async function ArkPage() {
     getCurrentMembership()
   ]);
 
+  const targetAllianceId = membership?.alliance_id ?? snapshot?.alliance_id ?? null;
   let savedPlan: unknown = null;
-  if (isSupabaseConfigured() && membership?.alliance_id) {
+  if (isSupabaseConfigured() && targetAllianceId) {
     const supabase = await createClient();
     const { data: cycle } = await supabase
       .from("ark_cycles")
       .select("id, ark_date, title, status, source_import_id, ark_teams(id, team_number, battle_time, check_in_minutes, captain_governor_id, notes, ark_assignments(*))")
-      .eq("alliance_id", membership.alliance_id)
+      .eq("alliance_id", targetAllianceId)
       .order("ark_date", { ascending: false })
       .limit(1)
       .maybeSingle();
