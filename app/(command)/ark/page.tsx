@@ -16,7 +16,7 @@ export default async function ArkPage() {
     const supabase = await createClient();
     const { data: cycle } = await supabase
       .from("ark_cycles")
-      .select("id, ark_date, title, status, source_import_id, ark_teams(id, team_number, battle_time, check_in_minutes, captain_governor_id, notes, ark_assignments(*)), ark_availability(*)")
+      .select("id, ark_date, title, status, source_import_id, signup_token, signup_open, signup_published_at, signup_message_id, ark_teams(id, team_number, battle_time, check_in_minutes, captain_governor_id, notes, ark_assignments(*)), ark_availability(*)")
       .eq("alliance_id", targetAllianceId)
       .order("ark_date", { ascending: false })
       .limit(1)
